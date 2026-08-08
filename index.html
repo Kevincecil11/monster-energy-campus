@@ -463,6 +463,13 @@ function makeRef() {
   return 'MTR-' + stamp + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
 }
 
+function showFail(msg) {
+  fail.textContent = msg;
+  fail.classList.add('on');
+  btn.disabled = false;
+  btn.textContent = 'Submit request';
+}
+
 form.addEventListener('submit', async (ev) => {
   ev.preventDefault();
   fail.classList.remove('on');
@@ -496,20 +503,30 @@ form.addEventListener('submit', async (ev) => {
   btn.textContent = 'Sending';
 
   try {
-    await fetch(SHEET_ENDPOINT, {
+    // text/plain keeps this a simple request, so no CORS preflight.
+    const res = await fetch(SHEET_ENDPOINT, {
       method: 'POST',
-      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
+
+    const raw = await res.text();
+    let result;
+    try { result = JSON.parse(raw); } catch (e) { result = null; }
+
+    if (!result || result.ok !== true) {
+      console.error('Sheets rejected the submission:', raw);
+      showFail('Could not save that. Tell the organiser the form is down.');
+      return;
+    }
+
     refCode.textContent = ref;
     form.style.display = 'none';
     done.classList.add('on');
     done.scrollIntoView({ behavior: 'smooth', block: 'center' });
   } catch (err) {
-    fail.classList.add('on');
-    btn.disabled = false;
-    btn.textContent = 'Submit request';
+    console.error('Submission failed:', err);
+    showFail('Could not send that. Check your connection and hit submit again.');
   }
 });
 
