@@ -1,38 +1,24 @@
-/**
- * Monster truck request form -> Google Sheets
- *
- * SETUP
- * 1. Create a Google Sheet. Copy its ID from the URL:
- *    https://docs.google.com/spreadsheets/d/<THIS_PART>/edit
- * 2. Paste that ID into SHEET_ID below.
- * 3. In the Sheet: Extensions > Apps Script. Delete the sample code,
- *    paste this whole file, save.
- * 4. Deploy > New deployment > type "Web app".
- *      Execute as: Me
- *      Who has access: Anyone
- * 5. Authorize when prompted. Copy the /exec URL it gives you.
- * 6. Paste that URL into SHEET_ENDPOINT in index.html.
- *
- * Optional: set NOTIFY_EMAIL to get an email on every new request.
- */
+// Campus event request form -> Google Sheets
+// Nothing here needs editing. Paste this into the Apps Script editor
+// attached to your Sheet (Extensions > Apps Script) and deploy.
+// Want an email per request? Put your address between the quotes below.
 
-var SHEET_ID = 'PASTE_YOUR_SHEET_ID_HERE';
-var SHEET_NAME = 'Requests';
-var NOTIFY_EMAIL = ''; // e.g. 'you@gmail.com' - leave empty to disable
+var SHEET_NAME = "Requests";
+var NOTIFY_EMAIL = "";
 
 var HEADERS = [
-  'Received at',
-  'Reference',
-  'Request type',
-  'Name',
-  'Phone',
-  'Email',
-  'Venue',
-  'Address',
-  'Event date',
-  'Expected crowd',
-  'Notes',
-  'Status'
+  "Received at",
+  "Reference",
+  "Request type",
+  "Name",
+  "Phone",
+  "Email",
+  "Venue",
+  "Address",
+  "Event date",
+  "Expected crowd",
+  "Notes",
+  "Status"
 ];
 
 function doPost(e) {
@@ -45,39 +31,40 @@ function doPost(e) {
 
     sheet.appendRow([
       new Date(),
-      data.ref || '',
-      data.requestType || '',
-      data.name || '',
-      "'" + (data.phone || ''),   // leading quote keeps the number as text
-      data.email || '',
-      data.venue || '',
-      data.address || '',
-      data.eventDate || '',
-      data.crowd || '',
-      data.notes || '',
-      'New'
+      data.ref || "",
+      data.requestType || "",
+      data.name || "",
+      "'" + (data.phone || ""),
+      data.email || "",
+      data.venue || "",
+      data.address || "",
+      data.eventDate || "",
+      data.crowd || "",
+      data.notes || "",
+      "New"
     ]);
 
     if (NOTIFY_EMAIL) {
+      var lines = [
+        "Reference: " + (data.ref || ""),
+        "Type: " + (data.requestType || ""),
+        "Name: " + (data.name || ""),
+        "Phone: " + (data.phone || ""),
+        "Email: " + (data.email || ""),
+        "Venue: " + (data.venue || ""),
+        "Address: " + (data.address || ""),
+        "Event date: " + (data.eventDate || ""),
+        "Expected crowd: " + (data.crowd || ""),
+        "Notes: " + (data.notes || "")
+      ];
       MailApp.sendEmail({
         to: NOTIFY_EMAIL,
-        subject: 'New truck request: ' + (data.name || 'Unknown') + ' (' + (data.requestType || '') + ')',
-        body: [
-          'Reference: ' + (data.ref || ''),
-          'Type: ' + (data.requestType || ''),
-          'Name: ' + (data.name || ''),
-          'Phone: ' + (data.phone || ''),
-          'Email: ' + (data.email || ''),
-          'Venue: ' + (data.venue || ''),
-          'Address: ' + (data.address || ''),
-          'Event date: ' + (data.eventDate || ''),
-          'Expected crowd: ' + (data.crowd || ''),
-          'Notes: ' + (data.notes || '')
-        ].join('\n')
+        subject: "New request: " + (data.name || "Unknown"),
+        body: lines.join("\n")
       });
     }
 
-    return json_({ ok: true, ref: data.ref || '' });
+    return json_({ ok: true, ref: data.ref || "" });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
   } finally {
@@ -86,11 +73,11 @@ function doPost(e) {
 }
 
 function doGet() {
-  return ContentService.createTextOutput('Monster request endpoint is live.');
+  return ContentService.createTextOutput("Request endpoint is live.");
 }
 
 function getSheet_() {
-  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(SHEET_NAME);
 
   if (!sheet) {
@@ -99,12 +86,12 @@ function getSheet_() {
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
     sheet.getRange(1, 1, 1, HEADERS.length)
-      .setFontWeight('bold')
-      .setBackground('#111111')
-      .setFontColor('#8CFF33');
+      .setFontWeight("bold")
+      .setBackground("#111111")
+      .setFontColor("#8CFF33");
     sheet.setFrozenRows(1);
-    sheet.setColumnWidth(8, 280); // address
-    sheet.setColumnWidth(11, 280); // notes
+    sheet.setColumnWidth(8, 280);
+    sheet.setColumnWidth(11, 280);
   }
   return sheet;
 }
@@ -113,4 +100,11 @@ function json_(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// Run this once from the editor to drop a test row into the Sheet.
+function testWrite() {
+  getSheet_().appendRow([new Date(), "TEST-0001", "Collab", "Test Person",
+    "'9999999999", "test@example.com", "Test venue", "Test address",
+    "2026-09-01", "500", "Test row", "New"]);
 }
