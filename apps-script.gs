@@ -1,70 +1,40 @@
-// Campus event request form -> Google Sheets
-// Nothing here needs editing. Paste this into the Apps Script editor
-// attached to your Sheet (Extensions > Apps Script) and deploy.
-// Want an email per request? Put your address between the quotes below.
+// Event requests + post-raid reports -> one Google Sheet, separate tabs.
+// After pasting this file into Apps Script, run setupAll() once, then deploy a new version.
 
-var SHEET_NAME = "Requests";
+var REQUESTS_SHEET = "Requests";
+var RAID_SHEET = "Raid Reports";
+var PHOTO_ROOT = "Raid Report Photos";
 var NOTIFY_EMAIL = "";
 
-var HEADERS = [
-  "Received at",
-  "Reference",
-  "Request type",
-  "Name",
-  "Phone",
-  "Email",
-  "Venue",
-  "Address",
-  "Event date",
-  "Expected crowd",
-  "Notes",
-  "Status"
+var REQUEST_HEADERS = [
+  "Received at", "Reference", "Request type", "Name", "Phone", "Email",
+  "Venue", "Address", "Event date", "Expected crowd", "Notes", "Status"
 ];
+
+var RAID_HEADERS = [
+  "Submitted at", "Reference", "Event date", "Raid end", "18h deadline", "Timeline",
+  "Event", "University / College", "Venue", "Activation type", "Brand",
+  "Cans out", "Cans in", "Cans sampled", "Cans to organisers", "Stock difference",
+  "MATs on raid", "Submitted by", "What worked", "What did not work",
+  "Photo folder", "Photo links"
+];
+
+function setupAll() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", ss.getId());
+  ensureSheet_(REQUESTS_SHEET, REQUEST_HEADERS);
+  ensureSheet_(RAID_SHEET, RAID_HEADERS);
+  getOrCreateFolder_(PHOTO_ROOT);
+  Logger.log("Ready: " + ss.getUrl());
+}
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
-  lock.waitLock(20000);
-
+  lock.waitLock(30000);
   try {
     var data = JSON.parse(e.postData.contents);
-    var sheet = getSheet_();
-
-    sheet.appendRow([
-      new Date(),
-      data.ref || "",
-      data.requestType || "",
-      data.name || "",
-      "'" + (data.phone || ""),
-      data.email || "",
-      data.venue || "",
-      data.address || "",
-      data.eventDate || "",
-      data.crowd || "",
-      data.notes || "",
-      "New"
-    ]);
-
-    if (NOTIFY_EMAIL) {
-      var lines = [
-        "Reference: " + (data.ref || ""),
-        "Type: " + (data.requestType || ""),
-        "Name: " + (data.name || ""),
-        "Phone: " + (data.phone || ""),
-        "Email: " + (data.email || ""),
-        "Venue: " + (data.venue || ""),
-        "Address: " + (data.address || ""),
-        "Event date: " + (data.eventDate || ""),
-        "Expected crowd: " + (data.crowd || ""),
-        "Notes: " + (data.notes || "")
-      ];
-      MailApp.sendEmail({
-        to: NOTIFY_EMAIL,
-        subject: "New request: " + (data.name || "Unknown"),
-        body: lines.join("\n")
-      });
-    }
-
-    return json_({ ok: true, ref: data.ref || "" });
+    if (data.formType === "raidReport") return saveRaidReport_(data);
+    return saveRequest_(data);
   } catch (err) {
     return json_({ ok: false, error: String(err) });
   } finally {
@@ -73,38 +43,116 @@ function doPost(e) {
 }
 
 function doGet() {
-  return ContentService.createTextOutput("Request endpoint is live.");
+  return ContentService.createTextOutput("Request and raid-report endpoint is live.");
 }
 
-function getSheet_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(SHEET_NAME);
+function saveRequest_(data) {
+  var sheet = ensureSheet_(REQUESTS_SHEET, REQUEST_HEADERS);
+  sheet.appendRow([
+    new Date(), data.ref || "", data.requestType || "", data.name || "",
+    "'" + (data.phone || ""), data.email || "", data.venue || "", data.address || "",
+    data.eventDate || "", data.crowd || "", data.notes || "", "New"
+  ]);
+  if (NOTIFY_EMAIL) sendRequestEmail_(data);
+  return json_({ ok: true, ref: data.ref || "" });
+}
 
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
+function saveRaidReport_(data) {
+  if (!data.images || data.images.length !== 10) {
+    throw new Error("Exactly 10 pictures are required.");
   }
+
+  var reportFolder = createReportFolder_(data);
+  var links = [];
+  for (var i = 0; i < data.images.length; i++) {
+    var image = data.images[i];
+    var bytes = Utilities.base64Decode(image.data);
+    var blob = Utilities.newBlob(bytes, image.mime || "image/jpeg", safeName_((i + 1) + "-" + image.name));
+    links.push(reportFolder.createFile(blob).getUrl());
+  }
+
+  var submitted = data.submittedAt ? new Date(data.submittedAt) : new Date();
+  var ended = new Date(data.reportDate + "T" + data.raidEnd + ":00");
+  var deadline = new Date(ended.getTime() + 18 * 60 * 60 * 1000);
+  var timeline = submitted <= deadline ? "On time" : "Late";
+  var stockDifference = Number(data.cansOut || 0) - Number(data.cansIn || 0) -
+    Number(data.cansSampled || 0) - Number(data.cansOrganisers || 0);
+
+  var sheet = ensureSheet_(RAID_SHEET, RAID_HEADERS);
+  sheet.appendRow([
+    submitted, data.ref || "", data.reportDate || "", data.raidEnd || "", deadline, timeline,
+    data.eventName || "", data.college || "", data.venue || "", data.activation || "", data.brand || "",
+    Number(data.cansOut || 0), Number(data.cansIn || 0), Number(data.cansSampled || 0),
+    Number(data.cansOrganisers || 0), stockDifference, data.mats || "", data.submittedBy || "",
+    data.worked || "", data.didnt || "", reportFolder.getUrl(), links.join("\n")
+  ]);
+
+  var row = sheet.getLastRow();
+  sheet.getRange(row, 6).setBackground(timeline === "On time" ? "#d9ead3" : "#f4cccc");
+  sheet.getRange(row, 16).setBackground(stockDifference === 0 ? "#d9ead3" : "#f4cccc");
+  if (NOTIFY_EMAIL) sendRaidEmail_(data, reportFolder.getUrl(), timeline, stockDifference);
+  return json_({ ok: true, ref: data.ref || "", folder: reportFolder.getUrl() });
+}
+
+function getSpreadsheet_() {
+  var id = PropertiesService.getScriptProperties().getProperty("SPREADSHEET_ID");
+  if (!id) throw new Error("Run setupAll() once from the Apps Script editor, then redeploy.");
+  return SpreadsheetApp.openById(id);
+}
+
+function ensureSheet_(name, headers) {
+  var ss = getSpreadsheet_();
+  var sheet = ss.getSheetByName(name) || ss.insertSheet(name);
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(HEADERS);
-    sheet.getRange(1, 1, 1, HEADERS.length)
-      .setFontWeight("bold")
-      .setBackground("#111111")
-      .setFontColor("#8CFF33");
+    sheet.appendRow(headers);
+    sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold").setBackground("#111111").setFontColor("#8CFF33");
     sheet.setFrozenRows(1);
-    sheet.setColumnWidth(8, 280);
-    sheet.setColumnWidth(11, 280);
+    sheet.getRange(1, 1, 1, headers.length).createFilter();
   }
+  sheet.setColumnWidth(17, 240);
+  sheet.setColumnWidth(19, 280);
+  sheet.setColumnWidth(20, 280);
+  sheet.setColumnWidth(22, 320);
   return sheet;
 }
 
-function json_(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
+function getOrCreateFolder_(name) {
+  var found = DriveApp.getFoldersByName(name);
+  return found.hasNext() ? found.next() : DriveApp.createFolder(name);
 }
 
-// Run this once from the editor to drop a test row into the Sheet.
-function testWrite() {
-  getSheet_().appendRow([new Date(), "TEST-0001", "Collab", "Test Person",
-    "'9999999999", "test@example.com", "Test venue", "Test address",
-    "2026-09-01", "500", "Test row", "New"]);
+function createReportFolder_(data) {
+  var root = getOrCreateFolder_(PHOTO_ROOT);
+  var label = [data.reportDate, data.eventName, data.ref].filter(String).join(" - ");
+  return root.createFolder(safeName_(label));
+}
+
+function safeName_(text) {
+  return String(text || "file").replace(/[\\/:*?\"<>|]/g, "-").slice(0, 120);
+}
+
+function sendRequestEmail_(data) {
+  MailApp.sendEmail(NOTIFY_EMAIL, "New event request: " + (data.name || "Unknown"),
+    "Reference: " + (data.ref || "") + "\nType: " + (data.requestType || "") +
+    "\nName: " + (data.name || "") + "\nPhone: " + (data.phone || "") +
+    "\nVenue: " + (data.venue || "") + "\nDate: " + (data.eventDate || ""));
+}
+
+function sendRaidEmail_(data, folder, timeline, difference) {
+  MailApp.sendEmail(NOTIFY_EMAIL, "Raid report: " + (data.eventName || "Unknown event"),
+    "Reference: " + (data.ref || "") + "\nSubmitted by: " + (data.submittedBy || "") +
+    "\nTimeline: " + timeline + "\nStock difference: " + difference + "\nPhotos: " + folder);
+}
+
+function json_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function testRequestWrite() {
+  saveRequest_({ ref: "TEST-REQUEST", requestType: "Collab", name: "Test Person", phone: "9999999999" });
+}
+
+function testRaidSheet() {
+  var sheet = ensureSheet_(RAID_SHEET, RAID_HEADERS);
+  Logger.log("Raid Reports ready: " + sheet.getName());
 }
