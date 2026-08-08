@@ -1,25 +1,28 @@
 /**
  * Monster Energy campus forms -> Google Sheets
  *
- * Handles BOTH forms:
- *   1. Event requests  -> "Requests" tab
- *   2. Raid reports    -> "Raid Reports" tab + photos in Google Drive
+ * Handles BOTH forms and the admin dashboard:
+ *   1. Event requests   -> "Requests" tab
+ *   2. Raid reports     -> "Raid Reports" tab + photos in Google Drive
+ *   3. Admin dashboard  -> reads Raid Reports back out (passcode protected)
  *
  * SETUP
  *   1. Open your Google Sheet.
  *   2. Extensions > Apps Script. Select all existing code, delete it, paste this whole file.
- *   3. Save (Ctrl+S).
- *   4. Run the function setupAll once. Approve the Google permission prompts.
- *   5. Deploy > Manage deployments > pencil icon > Version: New version > Deploy.
+ *   3. Change ADMIN_PASSCODE below to something only your team knows.
+ *   4. Save (Ctrl+S).
+ *   5. Run the function setupAll once. Approve the Google permission prompts.
+ *   6. Deploy > Manage deployments > pencil icon > Version: New version > Deploy.
  *      Your /exec URL does not change.
  *
- * Optional: put an email address in NOTIFY_EMAIL below to get an alert per submission.
+ * Optional: put an email address in NOTIFY_EMAIL to get an alert per submission.
  */
 
 var REQUESTS_SHEET = 'Requests';
 var RAID_SHEET = 'Raid Reports';
 var PHOTO_ROOT = 'Raid Report Photos';
 var NOTIFY_EMAIL = '';
+var ADMIN_PASSCODE = 'monster2026';
 
 var REQUEST_HEADERS = [
   'Received at',
@@ -94,6 +97,9 @@ function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
 
+    if (data.action === 'listReports') {
+      return listReports_(data);
+    }
     if (data.formType === 'raidReport') {
       return saveRaidReport_(data);
     }
@@ -104,6 +110,60 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+
+/* ------------------------------------------------------------------ *
+ *  ADMIN DASHBOARD: READ RAID REPORTS
+ * ------------------------------------------------------------------ */
+
+function listReports_(data) {
+  if (String(data.passcode || '') !== ADMIN_PASSCODE) {
+    return json_({ ok: false, error: 'Wrong passcode.' });
+  }
+
+  var sheet = ensureSheet_(RAID_SHEET, RAID_HEADERS);
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return json_({ ok: true, reports: [] });
+  }
+
+  var values = sheet.getRange(2, 1, lastRow - 1, RAID_HEADERS.length).getValues();
+  var reports = [];
+
+  for (var i = 0; i < values.length; i++) {
+    var r = values[i];
+    if (!r[1] && !r[6]) continue;
+
+    reports.push({
+      submittedAt: iso_(r[0]),
+      ref: String(r[1] || ''),
+      eventDate: dateText_(r[2]),
+      raidEnd: timeText_(r[3]),
+      deadline: iso_(r[4]),
+      timeline: String(r[5] || ''),
+      eventName: String(r[6] || ''),
+      college: String(r[7] || ''),
+      venue: String(r[8] || ''),
+      activation: String(r[9] || ''),
+      brand: String(r[10] || ''),
+      cansOut: num_(r[11]),
+      cansIn: num_(r[12]),
+      cansSampled: num_(r[13]),
+      cansOrganisers: num_(r[14]),
+      difference: num_(r[15]),
+      members: String(r[16] || ''),
+      totalHours: num_(r[17]),
+      submittedBy: String(r[18] || ''),
+      worked: String(r[19] || ''),
+      didnt: String(r[20] || ''),
+      folder: String(r[21] || ''),
+      photoCount: String(r[22] || '').split('\n').filter(String).length
+    });
+  }
+
+  reports.reverse();
+  return json_({ ok: true, reports: reports });
 }
 
 
@@ -163,7 +223,6 @@ function saveRaidReport_(data) {
     throw new Error('Add at least one MAT member.');
   }
 
-  // Upload photos into a folder named after this report.
   var folder = createReportFolder_(data);
   var links = [];
   for (var i = 0; i < images.length; i++) {
@@ -221,7 +280,6 @@ function saveRaidReport_(data) {
     links.join('\n')
   ]);
 
-  // Colour the two columns that matter at a glance.
   var row = sheet.getLastRow();
   sheet.getRange(row, 6).setBackground(timeline === 'On time' ? '#d9ead3' : '#f4cccc');
   sheet.getRange(row, 16).setBackground(difference === 0 ? '#d9ead3' : '#f4cccc');
@@ -247,7 +305,7 @@ function saveRaidReport_(data) {
 }
 
 /**
- * Accepts the new matMembers array, and still understands the older
+ * Accepts the matMembers array, and still understands the older
  * mats + totalHours payload so nothing breaks mid-rollout.
  */
 function readMembers_(data) {
@@ -286,7 +344,6 @@ function getSpreadsheet_() {
   if (id) {
     return SpreadsheetApp.openById(id);
   }
-  // Fallback so submissions still save if setupAll was never run.
   var active = SpreadsheetApp.getActiveSpreadsheet();
   if (!active) {
     throw new Error('No spreadsheet found. Run setupAll once from the Apps Script editor.');
@@ -307,7 +364,6 @@ function ensureSheet_(name, headers) {
     sheet.insertColumnsAfter(sheet.getMaxColumns(), needed - sheet.getMaxColumns());
   }
 
-  // Write the header row only when the sheet is empty or the header changed.
   var current = sheet.getRange(1, 1, 1, needed).getValues()[0];
   if (current.join('|') !== headers.join('|')) {
     sheet.getRange(1, 1, 1, needed).setValues([headers]);
@@ -363,6 +419,25 @@ function num_(value) {
   return isNaN(n) ? 0 : n;
 }
 
+function iso_(value) {
+  if (value instanceof Date && !isNaN(value.getTime())) return value.toISOString();
+  return String(value || '');
+}
+
+function dateText_(value) {
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  }
+  return String(value || '');
+}
+
+function timeText_(value) {
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), 'HH:mm');
+  }
+  return String(value || '');
+}
+
 function notify_(subject, lines) {
   try {
     MailApp.sendEmail(NOTIFY_EMAIL, subject, lines.join('\n'));
@@ -401,4 +476,9 @@ function testRequestWrite() {
 function testRaidSheet() {
   var sheet = ensureSheet_(RAID_SHEET, RAID_HEADERS);
   Logger.log(RAID_SHEET + ' is ready with ' + sheet.getLastColumn() + ' columns.');
+}
+
+function testListReports() {
+  var out = listReports_({ passcode: ADMIN_PASSCODE });
+  Logger.log(out.getContent());
 }
