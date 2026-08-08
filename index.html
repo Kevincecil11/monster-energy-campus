@@ -430,12 +430,8 @@ footer{padding-block:var(--s7) var(--s6);border-top:1px solid var(--line-soft)}
 </footer>
 
 <script>
-/* ------------------------------------------------------------------
-   GOOGLE SHEETS ENDPOINT
-   Paste the Apps Script Web App URL below (see apps-script.gs + SETUP.md).
-   Looks like: https://script.google.com/macros/s/AKfy..../exec
-------------------------------------------------------------------- */
-const SHEET_ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+/* Google Sheets endpoint (Apps Script web app). See SETUP.md. */
+const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbwMt1P7ewJG9njJRZgLbyQgiF6BXGHgoim5P-yyGcybZTAS61mOHcwn9A176ZcHLht9/exec";
 
 const io = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
@@ -500,17 +496,12 @@ form.addEventListener('submit', async (ev) => {
   btn.textContent = 'Sending';
 
   try {
-    if (SHEET_ENDPOINT.startsWith('http')) {
-      await fetch(SHEET_ENDPOINT, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-      });
-    } else {
-      console.warn('Sheets endpoint not configured. Payload:', payload);
-      await new Promise(r => setTimeout(r, 500));
-    }
+    await fetch(SHEET_ENDPOINT, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
     refCode.textContent = ref;
     form.style.display = 'none';
     done.classList.add('on');
