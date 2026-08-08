@@ -1,7 +1,8 @@
 // Campus event request form -> Google Sheets
-// Setup instructions live in SETUP.md
+// Nothing here needs editing. Paste this into the Apps Script editor
+// attached to your Sheet (Extensions > Apps Script) and deploy.
+// Want an email per request? Put your address between the quotes below.
 
-var SHEET_ID = "PASTE_YOUR_SHEET_ID_HERE";
 var SHEET_NAME = "Requests";
 var NOTIFY_EMAIL = "";
 
@@ -76,7 +77,7 @@ function doGet() {
 }
 
 function getSheet_() {
-  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(SHEET_NAME);
 
   if (!sheet) {
@@ -101,8 +102,9 @@ function json_(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// Run this once from the editor to confirm the sheet connection works.
-function testConnection() {
-  var sheet = getSheet_();
-  Logger.log("Connected to: " + sheet.getParent().getName());
+// Run this once from the editor to drop a test row into the Sheet.
+function testWrite() {
+  getSheet_().appendRow([new Date(), "TEST-0001", "Collab", "Test Person",
+    "'9999999999", "test@example.com", "Test venue", "Test address",
+    "2026-09-01", "500", "Test row", "New"]);
 }
