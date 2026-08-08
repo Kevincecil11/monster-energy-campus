@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Raid Reports · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+ color-scheme:dark;
+ --ink:oklch(13% .016 150);--s1:oklch(17% .018 150);--s2:oklch(21% .02 150);
+ --line:oklch(30% .02 150);--soft:oklch(24% .018 150);
+ --text:oklch(96% .008 150);--muted:oklch(70% .014 150);--faint:oklch(53% .014 150);
+ --acid:oklch(84% .225 140);--acid-deep:oklch(64% .17 140);
+ --bad:oklch(70% .17 27);
+ --expo:cubic-bezier(.16,1,.3,1);--quart:cubic-bezier(.25,1,.5,1)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font:400 16px/1.55 'Barlow',system-ui,sans-serif;letter-spacing:.012em;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Anton',Impact,sans-serif;font-weight:400;text-transform:uppercase;line-height:.92;text-wrap:balance}
+button,input,select{font:inherit}
+a{color:var(--acid)}
+.wrap{width:min(1320px,calc(100% - 40px));margin:auto}
+header{border-bottom:1px solid var(--soft);height:68px;display:flex;align-items:center;position:sticky;top:0;background:var(--ink);z-index:20}
+nav{display:flex;justify-content:space-between;align-items:center;width:100%;gap:20px}
+.brand{font-family:'Anton';letter-spacing:.09em;text-transform:uppercase}
+.navright{display:flex;gap:22px;align-items:center;font-size:.85rem;color:var(--muted)}
+.navright a{color:var(--muted);text-decoration:none}
+.navright a:hover{color:var(--acid)}
+.ghost{background:none;border:1px solid var(--line);color:var(--muted);min-height:38px;padding:0 14px;cursor:pointer;text-transform:uppercase;font-size:.72rem;letter-spacing:.09em;font-weight:600;transition:border-color .16s var(--quart),color .16s var(--quart)}
+.ghost:hover{border-color:var(--acid);color:var(--acid)}
+.ghost:disabled{opacity:.5;cursor:wait}
+.gate{min-height:calc(100vh - 68px);display:grid;place-items:center;padding:40px 0}
+.gate-inner{width:min(420px,100%)}
+.gate .eyebrow{color:var(--acid);font-size:.72rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+.gate h1{font-size:clamp(2.6rem,7vw,3.6rem);margin:14px 0 12px}
+.gate p{color:var(--muted);font-size:.92rem;margin-bottom:28px}
+.gate form{display:grid;gap:12px}
+.gate input{background:var(--s1);border:1px solid var(--line);color:var(--text);padding:13px 15px;min-height:50px;width:100%}
+.gate input:focus-visible{outline:3px solid oklch(84% .225 140/.22);border-color:var(--acid)}
+.solid{background:var(--acid);color:var(--ink);border:0;min-height:50px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;cursor:pointer}
+.solid:disabled{opacity:.55;cursor:wait}
+.gate .msg{color:var(--bad);font-size:.82rem;min-height:1.2em}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:36px 0 0}
+.summary div{padding:20px 22px 22px}
+.summary div+div{border-left:1px solid var(--soft)}
+.summary dt{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:600}
+.summary dd{font-family:'Anton';font-size:2.1rem;margin-top:8px;font-variant-numeric:tabular-nums;line-height:1}
+.summary .late dd{color:var(--bad)}
+.summary .ontime dd{color:var(--acid)}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:26px 0 18px}
+.controls input[type=search]{flex:1;min-width:220px;background:var(--s1);border:1px solid var(--line);color:var(--text);padding:11px 14px;min-height:46px}
+.controls input[type=search]:focus-visible{outline:3px solid oklch(84% .225 140/.22);border-color:var(--acid)}
+.chips{display:flex;border:1px solid var(--line)}
+.chips button{background:none;border:0;color:var(--muted);min-height:46px;padding:0 16px;cursor:pointer;font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;font-weight:600;transition:color .15s var(--quart),background-color .15s var(--quart)}
+.chips button+button{border-left:1px solid var(--soft)}
+.chips button[aria-pressed=true]{background:var(--acid);color:var(--ink)}
+.chips button:hover:not([aria-pressed=true]){color:var(--text)}
+.count{margin-left:auto;color:var(--faint);font-size:.82rem;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+thead th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.11em;color:var(--faint);font-weight:600;padding:0 14px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+thead th.n,tbody td.n{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr.row{border-bottom:1px solid var(--soft);cursor:pointer;transition:background-color .16s var(--quart)}
+tbody tr.row:hover,tbody tr.row.open{background:var(--s1)}
+tbody td{padding:15px 14px;vertical-align:top}
+.ev{font-weight:600}
+.sub{display:block;color:var(--faint);font-size:.8rem;margin-top:3px}
+.pill{display:inline-block;font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;font-weight:600;padding:4px 9px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill.ontime{color:var(--acid);border-color:var(--acid-deep)}
+.pill.late{color:var(--bad);border-color:var(--bad)}
+.diff.off{color:var(--bad);font-weight:600}
+.caret{color:var(--faint);transition:transform .2s var(--expo);display:inline-block}
+tr.row.open .caret{transform:rotate(90deg);color:var(--acid)}
+tr.detail{display:none}
+tr.detail.on{display:table-row}
+tr.detail td{background:var(--s1);border-bottom:1px solid var(--line);padding:0}
+.panel{padding:26px 14px 30px;display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:36px;animation:fade .3s var(--expo)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.panel h3{font-size:.72rem;letter-spacing:.13em;color:var(--acid);margin-bottom:14px}
+.panel p{font-size:.92rem;color:var(--muted);max-width:52ch}
+.panel p+h3{margin-top:24px}
+.kv{display:grid;gap:9px}
+.kv div{display:flex;justify-content:space-between;gap:18px;border-bottom:1px solid var(--soft);padding-bottom:8px;font-size:.88rem}
+.kv dt{color:var(--faint)}
+.kv dd{font-variant-numeric:tabular-nums;text-align:right}
+.mats{display:grid;gap:8px;font-size:.9rem}
+.mats div{display:flex;justify-content:space-between;gap:18px;border-bottom:1px solid var(--soft);padding-bottom:7px}
+.mats span:last-child{color:var(--acid);font-variant-numeric:tabular-nums}
+.folder{display:inline-flex;align-items:center;gap:8px;margin-top:18px;min-height:42px;padding:0 16px;border:1px solid var(--acid-deep);color:var(--acid);text-decoration:none;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.folder:hover{background:var(--acid);color:var(--ink)}
+.state{padding:80px 0;text-align:center}
+.state h2{font-size:1.8rem;margin-bottom:12px}
+.state p{color:var(--muted);max-width:44ch;margin:auto}
+.skeleton{display:grid;gap:2px;margin-top:26px}
+.skeleton span{height:58px;background:var(--s1);animation:pulse 1.4s var(--quart) infinite;animation-delay:calc(var(--i) * 90ms)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.err{border:1px solid var(--bad);padding:18px;color:var(--bad);margin-top:26px}
+footer{border-top:1px solid var(--soft);margin-top:64px;padding:26px 0 40px;color:var(--faint);font-size:.76rem}
+@media(max-width:1000px){
+ .summary{grid-template-columns:repeat(2,1fr)}
+ .summary div:nth-child(odd){border-left:0}
+ .summary div:nth-child(n+3){border-top:1px solid var(--soft)}
+ .panel{grid-template-columns:1fr;gap:26px}
+}
+@media(max-width:640px){
+ .navright span{display:none}
+ .controls input[type=search]{min-width:100%}
+ .count{margin-left:0}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><nav class="wrap">
+  <span class="brand">Raid Reports · Admin</span>
+  <div class="navright">
+    <a href="../raid-reports/">Submit a report</a>
+    <span id="stamp"></span>
+    <button class="ghost" id="refresh" hidden>Refresh</button>
+    <button class="ghost" id="signout" hidden>Sign out</button>
+  </div>
+</nav></header>
+<section class="gate wrap" id="gate">
+  <div class="gate-inner">
+    <p class="eyebrow">Restricted</p>
+    <h1>Team access only</h1>
+    <p>Enter the admin passcode to load every raid report submitted so far.</p>
+    <form id="gateForm">
+      <input id="passcode" type="password" placeholder="Admin passcode" autocomplete="current-password" required>
+      <button class="solid" id="gateBtn" type="submit">Open dashboard</button>
+      <p class="msg" id="gateMsg"></p>
+    </form>
+  </div>
+</section>
+<main class="wrap" id="board" hidden>
+  <dl class="summary" id="summary"></dl>
+  <div class="controls">
+    <input type="search" id="search" placeholder="Search event, college, venue, MAT">
+    <div class="chips" role="group" aria-label="Filter by timeline">
+      <button data-filter="all" aria-pressed="true">All</button>
+      <button data-filter="On time" aria-pressed="false">On time</button>
+      <button data-filter="Late" aria-pressed="false">Late</button>
+    </div>
+    <span class="count" id="count"></span>
+  </div>
+  <div id="loading" class="skeleton">
+    <span style="--i:0"></span><span style="--i:1"></span><span style="--i:2"></span>
+    <span style="--i:3"></span><span style="--i:4"></span><span style="--i:5"></span>
+  </div>
+  <div class="err" id="error" hidden></div>
+  <div class="tablewrap" id="tablewrap" hidden>
+    <table>
+      <thead><tr>
+        <th style="width:26px"></th>
+        <th>Event</th>
+        <th>College</th>
+        <th>Activation</th>
+        <th>Brand</th>
+        <th class="n">Sampled</th>
+        <th class="n">Diff</th>
+        <th class="n">Hours</th>
+        <th>Timeline</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="state" id="empty" hidden>
+    <h2>Nothing here yet</h2>
+    <p>Reports appear the moment a MAT submits one. Nothing matches your current filters, or no raids have been logged.</p>
+  </div>
+</main>
+<footer class="wrap">Internal tool. Report data lives in the Raid Reports sheet; photos live in Drive.</footer>
+<script>
+const ENDPOINT='https://script.google.com/macros/s/AKfycbwMt1P7ewJG9njJRZgLbyQgiF6BXGHgoim5P-yyGcybZTAS61mOHcwn9A176ZcHLht9/exec';
+const $=id=>document.getElementById(id);
+let reports=[],filter='all',term='',pass='';
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const when=iso=>{const d=new Date(iso);return isNaN(d)?'':d.toLocaleString(undefined,{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
+async function load(){
+  $('loading').hidden=false;$('tablewrap').hidden=true;$('empty').hidden=true;$('error').hidden=true;
+  $('refresh').disabled=true;
+  try{
+    const res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'listReports',passcode:pass})});
+    const out=JSON.parse(await res.text());
+    if(!out.ok)throw new Error(out.error||'Could not load reports.');
+    reports=out.reports||[];
+    $('stamp').textContent='Updated '+new Date().toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+    render();
+  }catch(err){
+    $('error').textContent=err.message==='Wrong passcode.'?'Session expired. Sign out and enter the passcode again.':'Could not reach the sheet. Check your connection and hit Refresh.';
+    $('error').hidden=false;
+  }finally{
+    $('loading').hidden=true;$('refresh').disabled=false;
+  }
+}
+function visible(){
+  return reports.filter(r=>{
+    if(filter!=='all'&&r.timeline!==filter)return false;
+    if(!term)return true;
+    return [r.eventName,r.college,r.venue,r.members,r.submittedBy,r.brand,r.activation,r.ref]
+      .join(' ').toLowerCase().includes(term);
+  });
+}
+function render(){
+  const list=visible();
+  const late=reports.filter(r=>r.timeline==='Late').length;
+  const sampled=reports.reduce((s,r)=>s+r.cansSampled,0);
+  const hours=reports.reduce((s,r)=>s+r.totalHours,0);
+  $('summary').innerHTML=[
+    ['Reports',reports.length,''],
+    ['On time',reports.length-late,'ontime'],
+    ['Late',late,'late'],
+    ['Cans sampled',sampled.toLocaleString(),''],
+    ['MAT hours',hours,'']
+  ].map(([k,v,cls])=>`<div class="${cls}"><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+  $('count').textContent=list.length===reports.length
+    ? `${reports.length} report${reports.length===1?'':'s'}`
+    : `${list.length} of ${reports.length}`;
+  if(!list.length){$('tablewrap').hidden=true;$('empty').hidden=false;return}
+  $('empty').hidden=true;$('tablewrap').hidden=false;
+  $('rows').innerHTML=list.map((r,i)=>{
+    const mats=r.members.split('\n').filter(Boolean).map(line=>{
+      const cut=line.lastIndexOf(':');
+      const name=cut>0?line.slice(0,cut):line;
+      const hrs=cut>0?line.slice(cut+1).trim():'';
+      return `<div><span>${esc(name)}</span><span>${esc(hrs)}</span></div>`;
+    }).join('')||'<div><span>Not recorded</span><span></span></div>';
+    return `<tr class="row" data-i="${i}" tabindex="0" role="button" aria-expanded="false">
+      <td><span class="caret">›</span></td>
+      <td><span class="ev">${esc(r.eventName)||'Untitled'}</span><span class="sub">${esc(r.eventDate)} · ${esc(r.ref)}</span></td>
+      <td>${esc(r.college)}<span class="sub">${esc(r.venue)}</span></td>
+      <td>${esc(r.activation)}</td>
+      <td>${esc(r.brand)}</td>
+      <td class="n">${r.cansSampled}</td>
+      <td class="n diff${r.difference!==0?' off':''}">${r.difference>0?'+':''}${r.difference}</td>
+      <td class="n">${r.totalHours}</td>
+      <td><span class="pill ${r.timeline==='Late'?'late':'ontime'}">${esc(r.timeline)}</span></td>
+    </tr>
+    <tr class="detail" data-d="${i}"><td colspan="9"><div class="panel">
+      <div>
+        <h3>What worked</h3><p>${esc(r.worked)||'Not recorded.'}</p>
+        <h3>What did not work</h3><p>${esc(r.didnt)||'Not recorded.'}</p>
+        ${r.folder?`<a class="folder" href="${esc(r.folder)}" target="_blank" rel="noopener">Open ${r.photoCount||10} photos</a>`:''}
+      </div>
+      <div>
+        <h3>Stock</h3>
+        <dl class="kv">
+          <div><dt>Cans out</dt><dd>${r.cansOut}</dd></div>
+          <div><dt>Cans in</dt><dd>${r.cansIn}</dd></div>
+          <div><dt>Sampled</dt><dd>${r.cansSampled}</dd></div>
+          <div><dt>To organisers</dt><dd>${r.cansOrganisers}</dd></div>
+          <div><dt>Difference</dt><dd class="${r.difference!==0?'diff off':''}">${r.difference>0?'+':''}${r.difference}</dd></div>
+        </dl>
+      </div>
+      <div>
+        <h3>MATs on raid</h3>
+        <div class="mats">${mats}</div>
+        <dl class="kv" style="margin-top:22px">
+          <div><dt>Submitted by</dt><dd>${esc(r.submittedBy)}</dd></div>
+          <div><dt>Raid ended</dt><dd>${esc(r.raidEnd)}</dd></div>
+          <div><dt>Submitted</dt><dd>${when(r.submittedAt)}</dd></div>
+        </dl>
+      </div>
+    </div></td></tr>`;
+  }).join('');
+}
+$('rows').addEventListener('click',e=>toggle(e.target.closest('.row')));
+$('rows').addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('row')){e.preventDefault();toggle(e.target)}
+});
+function toggle(row){
+  if(!row)return;
+  const detail=document.querySelector(`tr.detail[data-d="${row.dataset.i}"]`);
+  const open=detail.classList.toggle('on');
+  row.classList.toggle('open',open);
+  row.setAttribute('aria-expanded',open);
+}
+$('search').addEventListener('input',e=>{term=e.target.value.trim().toLowerCase();render()});
+document.querySelectorAll('.chips button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.chips button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  filter=b.dataset.filter;render();
+}));
+$('refresh').addEventListener('click',load);
+$('signout').addEventListener('click',()=>{sessionStorage.removeItem('raidPass');location.reload()});
+$('gateForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const btn=$('gateBtn');btn.disabled=true;btn.textContent='Checking';$('gateMsg').textContent='';
+  const attempt=$('passcode').value.trim();
+  try{
+    const res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'listReports',passcode:attempt})});
+    const out=JSON.parse(await res.text());
+    if(!out.ok){$('gateMsg').textContent=out.error||'Could not sign in.';return}
+    pass=attempt;sessionStorage.setItem('raidPass',attempt);
+    reports=out.reports||[];
+    openBoard();
+    $('stamp').textContent='Updated '+new Date().toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+    $('loading').hidden=true;render();
+  }catch(err){
+    $('gateMsg').textContent='Could not reach the sheet. Check your connection.';
+  }finally{btn.disabled=false;btn.textContent='Open dashboard'}
+});
+function openBoard(){
+  $('gate').hidden=true;$('board').hidden=false;
+  $('refresh').hidden=false;$('signout').hidden=false;
+}
+const saved=sessionStorage.getItem('raidPass');
+if(saved){pass=saved;openBoard();load()}
+</script>
+</body>
+</html>
