@@ -1,154 +1,20 @@
 // Event requests + post-raid reports -> one Google Sheet, separate tabs.
 // After pasting this file into Apps Script, run setupAll() once, then deploy a new version.
-
-var REQUESTS_SHEET = "Requests";
-var RAID_SHEET = "Raid Reports";
-var PHOTO_ROOT = "Raid Report Photos";
-var NOTIFY_EMAIL = "";
-
-var REQUEST_HEADERS = [
-  "Received at", "Reference", "Request type", "Name", "Phone", "Email",
-  "Venue", "Address", "Event date", "Expected crowd", "Notes", "Status"
-];
-
-var RAID_HEADERS = [
-  "Submitted at", "Reference", "Event date", "Raid end", "18h deadline", "Timeline",
-  "Event", "University / College", "Venue", "Activation type", "Brand",
-  "Cans out", "Cans in", "Cans sampled", "Cans to organisers", "Stock difference",
-  "MATs on raid", "Total MAT hours", "Submitted by", "What worked", "What did not work",
-  "Photo folder", "Photo links"
-];
-
-function setupAll() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", ss.getId());
-  ensureSheet_(REQUESTS_SHEET, REQUEST_HEADERS);
-  ensureSheet_(RAID_SHEET, RAID_HEADERS);
-  getOrCreateFolder_(PHOTO_ROOT);
-  Logger.log("Ready: " + ss.getUrl());
-}
-
-function doPost(e) {
-  var lock = LockService.getScriptLock();
-  lock.waitLock(30000);
-  try {
-    var data = JSON.parse(e.postData.contents);
-    if (data.formType === "raidReport") return saveRaidReport_(data);
-    return saveRequest_(data);
-  } catch (err) {
-    return json_({ ok: false, error: String(err) });
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-function doGet() {
-  return ContentService.createTextOutput("Request and raid-report endpoint is live.");
-}
-
-function saveRequest_(data) {
-  var sheet = ensureSheet_(REQUESTS_SHEET, REQUEST_HEADERS);
-  sheet.appendRow([
-    new Date(), data.ref || "", data.requestType || "", data.name || "",
-    "'" + (data.phone || ""), data.email || "", data.venue || "", data.address || "",
-    data.eventDate || "", data.crowd || "", data.notes || "", "New"
-  ]);
-  if (NOTIFY_EMAIL) sendRequestEmail_(data);
-  return json_({ ok: true, ref: data.ref || "" });
-}
-
-function saveRaidReport_(data) {
-  if (!data.images || data.images.length !== 10) throw new Error("Exactly 10 pictures are required.");
-
-  var reportFolder = createReportFolder_(data);
-  var links = [];
-  for (var i = 0; i < data.images.length; i++) {
-    var image = data.images[i];
-    var bytes = Utilities.base64Decode(image.data);
-    var blob = Utilities.newBlob(bytes, image.mime || "image/jpeg", safeName_((i + 1) + "-" + image.name));
-    links.push(reportFolder.createFile(blob).getUrl());
-  }
-
-  var submitted = data.submittedAt ? new Date(data.submittedAt) : new Date();
-  var ended = new Date(data.reportDate + "T" + data.raidEnd + ":00");
-  var deadline = new Date(ended.getTime() + 18 * 60 * 60 * 1000);
-  var timeline = submitted <= deadline ? "On time" : "Late";
-  var stockDifference = Number(data.cansOut || 0) - Number(data.cansIn || 0) - Number(data.cansSampled || 0) - Number(data.cansOrganisers || 0);
-
-  var sheet = ensureSheet_(RAID_SHEET, RAID_HEADERS);
-  sheet.appendRow([
-    submitted, data.ref || "", data.reportDate || "", data.raidEnd || "", deadline, timeline,
-    data.eventName || "", data.college || "", data.venue || "", data.activation || "", data.brand || "",
-    Number(data.cansOut || 0), Number(data.cansIn || 0), Number(data.cansSampled || 0),
-    Number(data.cansOrganisers || 0), stockDifference, data.mats || "", Number(data.totalHours || 0),
-    data.submittedBy || "", data.worked || "", data.didnt || "", reportFolder.getUrl(), links.join("\n")
-  ]);
-
-  var row = sheet.getLastRow();
-  sheet.getRange(row, 6).setBackground(timeline === "On time" ? "#d9ead3" : "#f4cccc");
-  sheet.getRange(row, 16).setBackground(stockDifference === 0 ? "#d9ead3" : "#f4cccc");
-  if (NOTIFY_EMAIL) sendRaidEmail_(data, reportFolder.getUrl(), timeline, stockDifference);
-  return json_({ ok: true, ref: data.ref || "", folder: reportFolder.getUrl() });
-}
-
-function getSpreadsheet_() {
-  var id = PropertiesService.getScriptProperties().getProperty("SPREADSHEET_ID");
-  if (!id) throw new Error("Run setupAll() once from the Apps Script editor, then redeploy.");
-  return SpreadsheetApp.openById(id);
-}
-
-function ensureSheet_(name, headers) {
-  var ss = getSpreadsheet_();
-  var sheet = ss.getSheetByName(name) || ss.insertSheet(name);
-  if (sheet.getMaxColumns() < headers.length) sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight("bold").setBackground("#111111").setFontColor("#8CFF33");
-  sheet.setFrozenRows(1);
-  if (!sheet.getFilter() && sheet.getLastRow() > 0) sheet.getRange(1, 1, Math.max(1, sheet.getLastRow()), headers.length).createFilter();
-  sheet.setColumnWidth(17, 240);
-  sheet.setColumnWidth(20, 280);
-  sheet.setColumnWidth(21, 280);
-  sheet.setColumnWidth(23, 320);
-  return sheet;
-}
-
-function getOrCreateFolder_(name) {
-  var found = DriveApp.getFoldersByName(name);
-  return found.hasNext() ? found.next() : DriveApp.createFolder(name);
-}
-
-function createReportFolder_(data) {
-  var root = getOrCreateFolder_(PHOTO_ROOT);
-  var label = [data.reportDate, data.eventName, data.ref].filter(String).join(" - ");
-  return root.createFolder(safeName_(label));
-}
-
-function safeName_(text) {
-  return String(text || "file").replace(/[\\/:*?\"<>|]/g, "-").slice(0, 120);
-}
-
-function sendRequestEmail_(data) {
-  MailApp.sendEmail(NOTIFY_EMAIL, "New event request: " + (data.name || "Unknown"),
-    "Reference: " + (data.ref || "") + "\nType: " + (data.requestType || "") +
-    "\nName: " + (data.name || "") + "\nPhone: " + (data.phone || "") +
-    "\nVenue: " + (data.venue || "") + "\nDate: " + (data.eventDate || ""));
-}
-
-function sendRaidEmail_(data, folder, timeline, difference) {
-  MailApp.sendEmail(NOTIFY_EMAIL, "Raid report: " + (data.eventName || "Unknown event"),
-    "Reference: " + (data.ref || "") + "\nSubmitted by: " + (data.submittedBy || "") +
-    "\nMAT hours: " + (data.totalHours || "") + "\nTimeline: " + timeline +
-    "\nStock difference: " + difference + "\nPhotos: " + folder);
-}
-
-function json_(obj) {
-  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
-}
-
-function testRequestWrite() {
-  saveRequest_({ ref: "TEST-REQUEST", requestType: "Collab", name: "Test Person", phone: "9999999999" });
-}
-
-function testRaidSheet() {
-  var sheet = ensureSheet_(RAID_SHEET, RAID_HEADERS);
-  Logger.log("Raid Reports ready: " + sheet.getName());
-}
+var REQUESTS_SHEET="Requests",RAID_SHEET="Raid Reports",PHOTO_ROOT="Raid Report Photos",NOTIFY_EMAIL="";
+var REQUEST_HEADERS=["Received at","Reference","Request type","Name","Phone","Email","Venue","Address","Event date","Expected crowd","Notes","Status"];
+var RAID_HEADERS=["Submitted at","Reference","Event date","Raid end","18h deadline","Timeline","Event","University / College","Venue","Activation type","Brand","Cans out","Cans in","Cans sampled","Cans to organisers","Stock difference","MAT member hours","Submitted by","What worked","What did not work","Photo folder","Photo links"];
+function setupAll(){var ss=SpreadsheetApp.getActiveSpreadsheet();PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID",ss.getId());ensureSheet_(REQUESTS_SHEET,REQUEST_HEADERS);ensureSheet_(RAID_SHEET,RAID_HEADERS);getOrCreateFolder_(PHOTO_ROOT);Logger.log("Ready: "+ss.getUrl())}
+function doPost(e){var lock=LockService.getScriptLock();lock.waitLock(30000);try{var data=JSON.parse(e.postData.contents);return data.formType==="raidReport"?saveRaidReport_(data):saveRequest_(data)}catch(err){return json_({ok:false,error:String(err)})}finally{lock.releaseLock()}}
+function doGet(){return ContentService.createTextOutput("Request and raid-report endpoint is live.")}
+function saveRequest_(data){var sheet=ensureSheet_(REQUESTS_SHEET,REQUEST_HEADERS);sheet.appendRow([new Date(),data.ref||"",data.requestType||"",data.name||"","'"+(data.phone||""),data.email||"",data.venue||"",data.address||"",data.eventDate||"",data.crowd||"",data.notes||"","New"]);if(NOTIFY_EMAIL)sendRequestEmail_(data);return json_({ok:true,ref:data.ref||""})}
+function saveRaidReport_(data){if(!data.images||data.images.length!==10)throw new Error("Exactly 10 pictures are required.");if(!data.matMembers||!data.matMembers.length)throw new Error("At least one MAT member is required.");var reportFolder=createReportFolder_(data),links=[];for(var i=0;i<data.images.length;i++){var image=data.images[i],bytes=Utilities.base64Decode(image.data),blob=Utilities.newBlob(bytes,image.mime||"image/jpeg",safeName_((i+1)+"-"+image.name));links.push(reportFolder.createFile(blob).getUrl())}var submitted=data.submittedAt?new Date(data.submittedAt):new Date(),ended=new Date(data.reportDate+"T"+data.raidEnd+":00"),deadline=new Date(ended.getTime()+18*60*60*1000),timeline=submitted<=deadline?"On time":"Late",stockDifference=Number(data.cansOut||0)-Number(data.cansIn||0)-Number(data.cansSampled||0)-Number(data.cansOrganisers||0),memberHours=data.matMembers.map(function(m){return(m.name||"")+" — "+Number(m.hours||0)+" hours"}).join("\n");var sheet=ensureSheet_(RAID_SHEET,RAID_HEADERS);sheet.appendRow([submitted,data.ref||"",data.reportDate||"",data.raidEnd||"",deadline,timeline,data.eventName||"",data.college||"",data.venue||"",data.activation||"",data.brand||"",Number(data.cansOut||0),Number(data.cansIn||0),Number(data.cansSampled||0),Number(data.cansOrganisers||0),stockDifference,memberHours,data.submittedBy||"",data.worked||"",data.didnt||"",reportFolder.getUrl(),links.join("\n")]);var row=sheet.getLastRow();sheet.getRange(row,6).setBackground(timeline==="On time"?"#d9ead3":"#f4cccc");sheet.getRange(row,16).setBackground(stockDifference===0?"#d9ead3":"#f4cccc");if(NOTIFY_EMAIL)sendRaidEmail_(data,reportFolder.getUrl(),timeline,stockDifference,memberHours);return json_({ok:true,ref:data.ref||"",folder:reportFolder.getUrl()})}
+function getSpreadsheet_(){var id=PropertiesService.getScriptProperties().getProperty("SPREADSHEET_ID");if(!id)throw new Error("Run setupAll() once from the Apps Script editor, then redeploy.");return SpreadsheetApp.openById(id)}
+function ensureSheet_(name,headers){var ss=getSpreadsheet_(),sheet=ss.getSheetByName(name)||ss.insertSheet(name);if(sheet.getMaxColumns()<headers.length)sheet.insertColumnsAfter(sheet.getMaxColumns(),headers.length-sheet.getMaxColumns());sheet.getRange(1,1,1,headers.length).setValues([headers]).setFontWeight("bold").setBackground("#111111").setFontColor("#8CFF33");sheet.setFrozenRows(1);if(!sheet.getFilter()&&sheet.getLastRow()>0)sheet.getRange(1,1,Math.max(1,sheet.getLastRow()),headers.length).createFilter();sheet.setColumnWidth(17,260);sheet.setColumnWidth(19,280);sheet.setColumnWidth(20,280);sheet.setColumnWidth(22,320);return sheet}
+function getOrCreateFolder_(name){var found=DriveApp.getFoldersByName(name);return found.hasNext()?found.next():DriveApp.createFolder(name)}
+function createReportFolder_(data){var root=getOrCreateFolder_(PHOTO_ROOT),label=[data.reportDate,data.eventName,data.ref].filter(String).join(" - ");return root.createFolder(safeName_(label))}
+function safeName_(text){return String(text||"file").replace(/[\\/:*?\"<>|]/g,"-").slice(0,120)}
+function sendRequestEmail_(data){MailApp.sendEmail(NOTIFY_EMAIL,"New event request: "+(data.name||"Unknown"),"Reference: "+(data.ref||"")+"\nType: "+(data.requestType||"")+"\nName: "+(data.name||"")+"\nPhone: "+(data.phone||"")+"\nVenue: "+(data.venue||"")+"\nDate: "+(data.eventDate||""))}
+function sendRaidEmail_(data,folder,timeline,difference,memberHours){MailApp.sendEmail(NOTIFY_EMAIL,"Raid report: "+(data.eventName||"Unknown event"),"Reference: "+(data.ref||"")+"\nSubmitted by: "+(data.submittedBy||"")+"\nMATs:\n"+memberHours+"\nTimeline: "+timeline+"\nStock difference: "+difference+"\nPhotos: "+folder)}
+function json_(obj){return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON)}
+function testRequestWrite(){saveRequest_({ref:"TEST-REQUEST",requestType:"Collab",name:"Test Person",phone:"9999999999"})}
+function testRaidSheet(){var sheet=ensureSheet_(RAID_SHEET,RAID_HEADERS);Logger.log("Raid Reports ready: "+sheet.getName())}
