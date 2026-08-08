@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Monster Energy · Campus Ambassador Brief</title>
-<meta name="description" content="Campus ambassador brief and activation proposal for Monster Energy India.">
+<title>Book the Monster Truck · Campus & Event Requests</title>
+<meta name="description" content="Request the Monster Energy truck for your college fest, fresher's party or event. Sampling, branding and crew, booked in one form.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,17 +20,17 @@
   --faint:      oklch(55% 0.014 150);
   --acid:       oklch(84% 0.225 140);
   --acid-deep:  oklch(64% 0.170 140);
+  --danger:     oklch(70% 0.17 27);
 
   --step-xs: 0.75rem;
   --step-sm: 0.875rem;
   --step-md: 1rem;
   --step-lg: 1.333rem;
   --step-xl: clamp(1.9rem, 1.2rem + 2.6vw, 3.1rem);
-  --step-2xl: clamp(3.2rem, 1rem + 10.5vw, 8.5rem);
+  --step-2xl: clamp(3rem, 1rem + 9.5vw, 7.6rem);
 
-  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
-  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
-  --s9: 96px; --s10: 144px;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px;
+  --s5:24px; --s6:32px; --s7:48px; --s8:64px;
 
   --expo: cubic-bezier(0.16, 1, 0.3, 1);
   --quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -38,259 +38,156 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-
 body{
-  background:var(--ink);
-  color:var(--text);
+  background:var(--ink);color:var(--text);
   font-family:'Barlow',system-ui,sans-serif;
-  font-size:var(--step-md);
-  font-weight:400;
-  line-height:1.6;
-  letter-spacing:0.012em;
-  font-optical-sizing:auto;
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
+  font-size:var(--step-md);line-height:1.6;letter-spacing:0.012em;
+  font-optical-sizing:auto;-webkit-font-smoothing:antialiased;overflow-x:hidden;
 }
-
 h1,h2,h3{
-  font-family:'Anton',Impact,sans-serif;
-  font-weight:400;
-  line-height:0.88;
-  letter-spacing:-0.01em;
-  text-transform:uppercase;
-  text-wrap:balance;
+  font-family:'Anton',Impact,sans-serif;font-weight:400;
+  line-height:0.88;letter-spacing:-0.01em;text-transform:uppercase;text-wrap:balance;
 }
-
 p{text-wrap:pretty}
 a{color:inherit;text-decoration:none}
-
 .wrap{max-width:1240px;margin-inline:auto;padding-inline:clamp(20px,5vw,64px)}
+.eyebrow{font-size:var(--step-xs);font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--acid)}
 
-.eyebrow{
-  font-size:var(--step-xs);
-  font-weight:600;
-  letter-spacing:0.14em;
-  text-transform:uppercase;
-  color:var(--acid);
-}
-.eyebrow.dim{color:var(--faint)}
-
-/* ---------- claw ---------- */
-.claw{display:block}
 .claw path{fill:var(--acid)}
 
-/* ---------- nav ---------- */
-header{
-  position:sticky;top:0;z-index:50;
-  background:var(--ink);
-  border-bottom:1px solid var(--line-soft);
-}
-.nav{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:var(--s5);height:68px;
-}
+/* nav */
+header{position:sticky;top:0;z-index:50;background:var(--ink);border-bottom:1px solid var(--line-soft)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:var(--s5);height:68px}
 .brandmark{display:flex;align-items:center;gap:var(--s3)}
-.brandmark .claw{width:26px;height:30px}
-.brandmark span{
-  font-family:'Anton',sans-serif;font-size:var(--step-md);
-  letter-spacing:0.1em;text-transform:uppercase;
-}
+.brandmark .claw{width:26px;height:30px;display:block}
+.brandmark span{font-family:'Anton',sans-serif;font-size:var(--step-md);letter-spacing:0.1em;text-transform:uppercase}
 .navlinks{display:flex;gap:var(--s6);font-size:var(--step-sm);color:var(--muted)}
 .navlinks a{position:relative;padding-block:6px;transition:color 140ms var(--quart)}
-.navlinks a::after{
-  content:'';position:absolute;left:0;bottom:0;width:100%;height:2px;
-  background:var(--acid);transform:scaleX(0);transform-origin:left;
-  transition:transform 220ms var(--expo);
-}
+.navlinks a::after{content:'';position:absolute;left:0;bottom:0;width:100%;height:2px;background:var(--acid);transform:scaleX(0);transform-origin:left;transition:transform 220ms var(--expo)}
 .navlinks a:hover{color:var(--text)}
 .navlinks a:hover::after{transform:scaleX(1)}
-@media (max-width:860px){.navlinks{display:none}}
+@media (max-width:900px){.navlinks{display:none}}
 
-/* ---------- hero ---------- */
-.hero{position:relative;padding-block:clamp(56px,11vw,132px) clamp(48px,8vw,96px);overflow:hidden}
-.hero-claw{
-  position:absolute;right:-6%;top:-8%;width:min(58vw,720px);height:auto;
-  opacity:0.07;pointer-events:none;transform:rotate(-8deg);
-}
-.hero-claw path{fill:var(--acid)}
-.hero-inner{position:relative;max-width:20ch}
-.hero h1{font-size:var(--step-2xl)}
-.hero h1 em{font-style:normal;color:var(--acid);display:block}
-.hero-lede{
-  margin-top:var(--s5);max-width:52ch;font-size:var(--step-lg);
-  line-height:1.45;color:var(--muted);
-}
-.hero-meta{
-  margin-top:var(--s7);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);
-  align-items:center;
-}
-
-.btn{
-  display:inline-flex;align-items:center;gap:10px;
-  min-height:48px;padding:0 var(--s5);
-  font-weight:600;font-size:var(--step-sm);
-  letter-spacing:0.06em;text-transform:uppercase;
-  border:1px solid transparent;cursor:pointer;
-  transition:transform 140ms var(--quart),background-color 160ms var(--quart),color 160ms var(--quart);
-}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 var(--s5);
+  font-weight:600;font-size:var(--step-sm);letter-spacing:0.06em;text-transform:uppercase;
+  border:1px solid transparent;cursor:pointer;font-family:inherit;
+  transition:transform 140ms var(--quart),background-color 160ms var(--quart),color 160ms var(--quart),border-color 160ms var(--quart)}
 .btn:active{transform:translateY(1px)}
 .btn-solid{background:var(--acid);color:oklch(16% 0.05 145)}
 .btn-solid:hover{background:oklch(90% 0.22 140)}
 .btn-ghost{border-color:var(--line);color:var(--text)}
 .btn-ghost:hover{border-color:var(--acid);color:var(--acid)}
 .btn:focus-visible{outline:3px solid var(--acid);outline-offset:3px}
+.btn[disabled]{opacity:0.55;cursor:not-allowed;transform:none}
 
-/* ---------- ticker ---------- */
-.ticker{
-  border-block:1px solid var(--line-soft);
-  background:var(--surface-1);
-  overflow:hidden;padding-block:var(--s3);
-}
-.ticker-track{
-  display:flex;gap:var(--s6);width:max-content;
-  animation:slide 34s linear infinite;
-  font-family:'Anton',sans-serif;font-size:var(--step-lg);
-  letter-spacing:0.06em;text-transform:uppercase;color:var(--faint);
-  white-space:nowrap;
-}
+/* hero */
+.hero{position:relative;padding-block:clamp(52px,10vw,124px) clamp(44px,7vw,88px);overflow:hidden}
+.hero-claw{position:absolute;right:-7%;top:-10%;width:min(60vw,760px);opacity:0.07;transform:rotate(-8deg);pointer-events:none}
+.hero-inner{position:relative}
+.hero h1{font-size:var(--step-2xl);max-width:14ch}
+.hero h1 em{font-style:normal;color:var(--acid);display:block}
+.hero-lede{margin-top:var(--s5);max-width:56ch;font-size:var(--step-lg);line-height:1.45;color:var(--muted)}
+.hero-meta{margin-top:var(--s7);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center}
+.hero-note{font-size:var(--step-xs);letter-spacing:0.1em;text-transform:uppercase;color:var(--faint)}
+
+/* ticker */
+.ticker{border-block:1px solid var(--line-soft);background:var(--surface-1);overflow:hidden;padding-block:var(--s3)}
+.ticker-track{display:flex;gap:var(--s6);width:max-content;animation:slide 36s linear infinite;
+  font-family:'Anton',sans-serif;font-size:var(--step-lg);letter-spacing:0.06em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
 .ticker-track b{color:var(--acid);font-weight:400}
 @keyframes slide{to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.ticker-track{animation:none}}
 
-/* ---------- sections ---------- */
-section{padding-block:clamp(56px,9vw,120px)}
+section{padding-block:clamp(52px,8vw,112px)}
 .sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--s5);margin-bottom:var(--s7)}
-.sec-head h2{font-size:var(--step-xl);max-width:16ch}
+.sec-head h2{font-size:var(--step-xl);max-width:17ch}
 .sec-head p{max-width:44ch;color:var(--muted);font-size:var(--step-sm)}
 
-/* spec sheet */
-.spec{border-top:1px solid var(--line)}
-.spec-row{
-  display:grid;grid-template-columns:minmax(140px,1fr) 2fr;
-  gap:var(--s4) var(--s6);
-  padding-block:var(--s4);
-  border-bottom:1px solid var(--line-soft);
-  align-items:baseline;
-}
-.spec-row dt{
-  font-size:var(--step-xs);letter-spacing:0.12em;text-transform:uppercase;
-  color:var(--faint);font-weight:600;
-}
-.spec-row dd{font-size:var(--step-lg);font-variant-numeric:tabular-nums;line-height:1.3}
-.spec-row dd small{display:block;font-size:var(--step-sm);color:var(--muted);margin-top:4px;letter-spacing:0}
-@media (max-width:620px){.spec-row{grid-template-columns:1fr;gap:var(--s1)}}
+/* steps */
+.steps{display:grid;gap:var(--s7)}
+.step{display:grid;grid-template-columns:auto 1fr;gap:var(--s5);align-items:start}
+.step-num{font-family:'Anton',sans-serif;font-size:clamp(2.4rem,6vw,4rem);line-height:0.8;color:var(--surface-2);-webkit-text-stroke:1px var(--line)}
+.step h3{font-size:var(--step-lg);margin-bottom:var(--s2)}
+.step p{color:var(--muted);max-width:66ch;font-size:var(--step-sm)}
+.step:nth-child(even){padding-left:clamp(0px,4vw,72px)}
 
-/* lineup */
-.lineup{border-top:1px solid var(--line)}
-.drink{
-  display:grid;grid-template-columns:56px 1.1fr 1.6fr auto;
-  gap:var(--s5);align-items:center;
-  padding-block:var(--s5);
-  border-bottom:1px solid var(--line-soft);
-  position:relative;
-  transition:background-color 200ms var(--quart);
-}
-.drink::before{
-  content:'';position:absolute;inset:0 -20px;background:var(--surface-1);
-  opacity:0;transition:opacity 200ms var(--quart);z-index:-1;
-}
-.drink:hover::before{opacity:1}
-.drink-no{
-  font-family:'Anton',sans-serif;font-size:var(--step-lg);
-  color:var(--acid-deep);font-variant-numeric:tabular-nums;
-  transition:color 200ms var(--quart);
-}
-.drink:hover .drink-no{color:var(--acid)}
-.drink h3{font-size:1.6rem}
-.drink p{font-size:var(--step-sm);color:var(--muted);max-width:48ch}
-.drink .tag{
-  font-size:var(--step-xs);letter-spacing:0.1em;text-transform:uppercase;
-  color:var(--faint);border:1px solid var(--line);padding:5px 10px;white-space:nowrap;
-}
-@media (max-width:880px){
-  .drink{grid-template-columns:44px 1fr;row-gap:var(--s2)}
-  .drink p{grid-column:2}
-  .drink .tag{grid-column:2;justify-self:start}
-}
+/* included list */
+.incl{border-top:1px solid var(--line)}
+.incl-row{display:grid;grid-template-columns:56px 1.1fr 1.6fr;gap:var(--s5);align-items:center;
+  padding-block:var(--s5);border-bottom:1px solid var(--line-soft);position:relative}
+.incl-row::before{content:'';position:absolute;inset:0 -20px;background:var(--surface-1);opacity:0;transition:opacity 200ms var(--quart);z-index:-1}
+.incl-row:hover::before{opacity:1}
+.incl-no{font-family:'Anton',sans-serif;font-size:var(--step-lg);color:var(--acid-deep);font-variant-numeric:tabular-nums;transition:color 200ms var(--quart)}
+.incl-row:hover .incl-no{color:var(--acid)}
+.incl-row h3{font-size:1.5rem}
+.incl-row p{font-size:var(--step-sm);color:var(--muted);max-width:52ch}
+@media (max-width:880px){.incl-row{grid-template-columns:44px 1fr;row-gap:var(--s2)}.incl-row p{grid-column:2}}
 
-/* ideas */
-.ideas{display:grid;gap:var(--s7)}
-.idea{display:grid;grid-template-columns:auto 1fr;gap:var(--s5);align-items:start}
-.idea-num{
-  font-family:'Anton',sans-serif;font-size:clamp(2.4rem,6vw,4.2rem);
-  line-height:0.8;color:var(--surface-2);
-  -webkit-text-stroke:1px var(--line);
-}
-.idea h3{font-size:var(--step-lg);margin-bottom:var(--s2)}
-.idea p{color:var(--muted);max-width:68ch;font-size:var(--step-sm)}
-.idea ul{margin-top:var(--s3);list-style:none;display:flex;flex-wrap:wrap;gap:var(--s2)}
-.idea li{
-  font-size:var(--step-xs);letter-spacing:0.08em;text-transform:uppercase;
-  color:var(--acid-deep);border:1px solid var(--line);padding:4px 10px;
-}
-.idea:nth-child(even){padding-left:clamp(0px,4vw,72px)}
+/* booking */
+.booking{background:var(--surface-1);border-block:1px solid var(--line-soft)}
+.book-grid{display:grid;grid-template-columns:0.85fr 1.15fr;gap:clamp(32px,6vw,80px);align-items:start}
+@media (max-width:960px){.book-grid{grid-template-columns:1fr}}
 
-/* inquiry */
-.inquiry{background:var(--surface-1);border-block:1px solid var(--line-soft)}
-.inq-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,88px);align-items:start}
-@media (max-width:900px){.inq-grid{grid-template-columns:1fr}}
+.aside h2{font-size:var(--step-xl);margin-bottom:var(--s4)}
+.aside p{color:var(--muted);font-size:var(--step-sm);max-width:46ch}
+.aside dl{margin-top:var(--s6);display:grid;gap:var(--s4)}
+.aside .r{display:grid;gap:2px;border-bottom:1px solid var(--line-soft);padding-bottom:var(--s3)}
+.aside dt{font-size:var(--step-xs);letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.aside dd{font-size:var(--step-md)}
 
-.pending{
-  border:1px dashed var(--line);
-  background:var(--surface-2);
-  padding:var(--s5);
-}
-.pending .badge{
-  display:inline-flex;align-items:center;gap:8px;
-  font-size:var(--step-xs);letter-spacing:0.12em;text-transform:uppercase;
-  color:var(--acid);font-weight:600;margin-bottom:var(--s3);
-}
-.pending .dot{width:7px;height:7px;background:var(--acid);border-radius:50%;animation:pulse 2s var(--quart) infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.25}}
-.pending p{color:var(--muted);font-size:var(--step-sm);max-width:44ch}
-.pending dl{margin-top:var(--s5);display:grid;gap:var(--s3)}
-.pending .pr{display:flex;justify-content:space-between;gap:var(--s4);border-bottom:1px solid var(--line-soft);padding-bottom:var(--s3)}
-.pending dt{font-size:var(--step-xs);letter-spacing:0.1em;text-transform:uppercase;color:var(--faint)}
-.pending dd{font-size:var(--step-sm);color:var(--faint);font-style:italic}
+/* choice toggle */
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin-bottom:var(--s2)}
+@media (max-width:520px){.choice{grid-template-columns:1fr}}
+.choice input{position:absolute;opacity:0;width:0;height:0}
+.choice label{display:grid;gap:4px;padding:var(--s4);border:1px solid var(--line);cursor:pointer;
+  transition:border-color 160ms var(--quart),background-color 160ms var(--quart)}
+.choice label strong{font-family:'Anton',sans-serif;font-weight:400;font-size:1.15rem;text-transform:uppercase;letter-spacing:0.02em}
+.choice label span{font-size:var(--step-xs);color:var(--faint);line-height:1.45}
+.choice label:hover{border-color:var(--faint)}
+.choice input:checked + label{border-color:var(--acid);background:var(--surface-2)}
+.choice input:checked + label strong{color:var(--acid)}
+.choice input:focus-visible + label{outline:3px solid var(--acid);outline-offset:3px}
 
 form{display:grid;gap:var(--s4)}
 .field{display:grid;gap:6px}
 .field label{font-size:var(--step-xs);letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.field input,.field textarea,.field select{
-  font-family:inherit;font-size:var(--step-md);color:var(--text);
-  background:var(--ink);border:1px solid var(--line);
-  padding:12px 14px;min-height:48px;width:100%;
-  transition:border-color 160ms var(--quart);
-}
-.field textarea{min-height:118px;resize:vertical;line-height:1.55}
+.field label .opt{color:var(--faint);letter-spacing:0.04em;text-transform:none;font-weight:400}
+.field input,.field textarea{font-family:inherit;font-size:var(--step-md);color:var(--text);
+  background:var(--ink);border:1px solid var(--line);padding:12px 14px;min-height:48px;width:100%;
+  transition:border-color 160ms var(--quart),box-shadow 160ms var(--quart)}
+.field textarea{min-height:110px;resize:vertical;line-height:1.55}
 .field input::placeholder,.field textarea::placeholder{color:oklch(45% 0.012 150)}
-.field input:hover,.field textarea:hover,.field select:hover{border-color:var(--faint)}
-.field input:focus-visible,.field textarea:focus-visible,.field select:focus-visible{
-  outline:none;border-color:var(--acid);box-shadow:0 0 0 3px oklch(84% 0.225 140 / 0.22);
-}
-.field.err input,.field.err textarea{border-color:oklch(66% 0.19 27)}
-.err-msg{font-size:var(--step-xs);color:oklch(74% 0.16 27);display:none}
+.field input:hover,.field textarea:hover{border-color:var(--faint)}
+.field input:focus-visible,.field textarea:focus-visible{outline:none;border-color:var(--acid);box-shadow:0 0 0 3px oklch(84% 0.225 140 / 0.2)}
+.field.err input,.field.err textarea{border-color:var(--danger)}
+.err-msg{font-size:var(--step-xs);color:var(--danger);display:none}
 .field.err .err-msg{display:block}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
-@media (max-width:520px){.two{grid-template-columns:1fr}}
-button[disabled]{opacity:0.55;cursor:not-allowed}
+@media (max-width:560px){.two{grid-template-columns:1fr}}
 .form-note{font-size:var(--step-xs);color:var(--faint)}
-.sent{
-  display:none;border:1px solid var(--acid-deep);background:var(--ink);
-  padding:var(--s5);
-}
-.sent.on{display:block}
-.sent h3{font-size:var(--step-lg);color:var(--acid);margin-bottom:var(--s2)}
-.sent p{font-size:var(--step-sm);color:var(--muted)}
 
-/* footer */
+.formfail{display:none;border:1px solid var(--danger);padding:var(--s3) var(--s4);font-size:var(--step-sm);color:var(--text)}
+.formfail.on{display:block}
+
+/* success */
+.done{display:none;border:1px solid var(--acid-deep);background:var(--ink);padding:clamp(24px,4vw,40px)}
+.done.on{display:block;animation:rise 520ms var(--expo) both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.done .tick{width:44px;height:44px;border:2px solid var(--acid);border-radius:50%;display:grid;place-items:center;margin-bottom:var(--s4)}
+.done .tick svg{width:22px;height:22px;stroke:var(--acid);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.done h3{font-size:var(--step-xl);color:var(--acid);margin-bottom:var(--s3)}
+.done p{color:var(--muted);font-size:var(--step-md);max-width:52ch}
+.done .ref{margin-top:var(--s5);font-size:var(--step-xs);letter-spacing:0.12em;text-transform:uppercase;color:var(--faint)}
+.done .ref b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.done button{margin-top:var(--s5)}
+
 footer{padding-block:var(--s7) var(--s6);border-top:1px solid var(--line-soft)}
 .foot{display:flex;flex-wrap:wrap;gap:var(--s4) var(--s6);justify-content:space-between;align-items:center}
-.foot p{font-size:var(--step-xs);color:var(--faint);max-width:70ch}
+.foot p{font-size:var(--step-xs);color:var(--faint);max-width:74ch}
 .foot nav{display:flex;gap:var(--s5);font-size:var(--step-xs);letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
 .foot nav a:hover{color:var(--acid)}
 
-/* reveal */
 .rv{opacity:0;transform:translateY(22px);transition:opacity 620ms var(--expo),transform 620ms var(--expo)}
 .rv.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
@@ -313,197 +210,195 @@ footer{padding-block:var(--s7) var(--s6);border-top:1px solid var(--line-soft)}
       <span>Monster Energy</span>
     </a>
     <nav class="navlinks">
-      <a href="#brand">Brand</a>
-      <a href="#lineup">Lineup</a>
-      <a href="#ideas">Campus Plan</a>
-      <a href="#inquiry">Inquiry</a>
+      <a href="#how">How it works</a>
+      <a href="#included">What arrives</a>
+      <a href="#book">Book the truck</a>
     </nav>
-    <a class="btn btn-solid" href="#inquiry">Send Inquiry</a>
+    <a class="btn btn-solid" href="#book">Request the truck</a>
   </div>
 </header>
 
 <main id="top">
 
   <section class="hero">
-    <svg class="hero-claw" viewBox="0 0 120 140" aria-hidden="true"><use href="#clawmark"/></svg>
+    <svg class="hero-claw claw" viewBox="0 0 120 140" aria-hidden="true"><use href="#clawmark"/></svg>
     <div class="wrap hero-inner">
-      <p class="eyebrow">Student Ambassador Program · India</p>
-      <h1 style="margin-top:var(--s4)">Unleash the<em>beast on campus</em></h1>
-      <p class="hero-lede">A working brief for the ambassador pitch: what the brand stands for, what sits on the shelf, and the three activations we want to run this semester.</p>
+      <p class="eyebrow">Campus & Event Truck Requests</p>
+      <h1 style="margin-top:var(--s4)">Park the truck<em>at your event</em></h1>
+      <p class="hero-lede">Fresher's party, college fest, sports meet, gaming night. Tell us where and when, and the Monster crew rolls up with a cooled truck, free cans and a setup people actually queue for.</p>
       <div class="hero-meta">
-        <a class="btn btn-solid" href="#ideas">See the campus plan</a>
-        <a class="btn btn-ghost" href="#brand">Brand fact sheet</a>
+        <a class="btn btn-solid" href="#book">Request the truck</a>
+        <a class="btn btn-ghost" href="#how">How it works</a>
+        <span class="hero-note">Give us 3 weeks notice</span>
       </div>
     </div>
   </section>
 
   <div class="ticker" aria-hidden="true">
     <div class="ticker-track">
-      <span>Original Green <b>/</b> Ultra Zero Sugar <b>/</b> Juice Monster <b>/</b> Java Monster <b>/</b> Rehab <b>/</b> Nitro <b>/</b></span>
-      <span>Original Green <b>/</b> Ultra Zero Sugar <b>/</b> Juice Monster <b>/</b> Java Monster <b>/</b> Rehab <b>/</b> Nitro <b>/</b></span>
+      <span>Fresher's parties <b>/</b> College fests <b>/</b> Sports meets <b>/</b> Gaming nights <b>/</b> Club launches <b>/</b> Marathons <b>/</b></span>
+      <span>Fresher's parties <b>/</b> College fests <b>/</b> Sports meets <b>/</b> Gaming nights <b>/</b> Club launches <b>/</b> Marathons <b>/</b></span>
     </div>
   </div>
 
-  <section id="brand" class="wrap rv">
+  <section id="how" class="wrap rv">
     <div class="sec-head">
-      <h2>The brand, in plain numbers</h2>
-      <p>Reference facts for the mentor deck. Confirm every figure against the current Monster Beverage investor page before this goes in front of anyone.</p>
+      <h2>Three steps, no paperwork loop</h2>
+      <p>You fill one form. We handle permissions with your college committee, logistics and the crew.</p>
     </div>
-    <dl class="spec">
-      <div class="spec-row"><dt>Launched</dt><dd>April 2002<small>Under Hansen Natural, later renamed Monster Beverage Corporation</small></dd></div>
-      <div class="spec-row"><dt>Headquarters</dt><dd>Corona, California<small>Distribution partnership with Coca-Cola since 2015</small></dd></div>
-      <div class="spec-row"><dt>Reach</dt><dd>Sold in 165+ countries<small>India market operates as monsterenergy.com/en-in</small></dd></div>
-      <div class="spec-row"><dt>Positioning</dt><dd>Lifestyle first, beverage second<small>Built through athletes, music and motorsport, not TV spots</small></dd></div>
-      <div class="spec-row"><dt>Core audience</dt><dd>16 to 27<small>Gaming, esports, motocross, skate, music festivals, gym culture</small></dd></div>
-      <div class="spec-row"><dt>Signature asset</dt><dd>The green claw<small>Three-slash M, readable at any size, never redrawn</small></dd></div>
-    </dl>
-  </section>
-
-  <section id="lineup" class="wrap rv">
-    <div class="sec-head">
-      <h2>What we can actually hand out</h2>
-      <p>Six families. For campus sampling, Ultra and Juice do the heavy lifting: zero sugar for gym crowds, flavour for everyone else.</p>
-    </div>
-    <div class="lineup">
-      <article class="drink">
-        <span class="drink-no">01</span>
-        <h3>Original Green</h3>
-        <p>The one everyone pictures. Full sugar, classic bite, the reference point for the whole category.</p>
-        <span class="tag">Hero SKU</span>
-      </article>
-      <article class="drink">
-        <span class="drink-no">02</span>
-        <h3>Ultra</h3>
-        <p>Zero sugar, lighter body, colour-coded flavours. Easiest sell to fitness and exam-week crowds.</p>
-        <span class="tag">Zero sugar</span>
-      </article>
-      <article class="drink">
-        <span class="drink-no">03</span>
-        <h3>Juice Monster</h3>
-        <p>Juice blends like Pipeline Punch and Mango Loco. Best performer at open-campus sampling tables.</p>
-        <span class="tag">Sampling pick</span>
-      </article>
-      <article class="drink">
-        <span class="drink-no">04</span>
-        <h3>Java Monster</h3>
-        <p>Coffee plus energy. Natural fit for library and late-study activations rather than sports events.</p>
-        <span class="tag">Coffee</span>
-      </article>
-      <article class="drink">
-        <span class="drink-no">05</span>
-        <h3>Rehab</h3>
-        <p>Tea-based, non-carbonated, lower intensity. Good for the recovery angle after fest days.</p>
-        <span class="tag">Non-carb</span>
-      </article>
-      <article class="drink">
-        <span class="drink-no">06</span>
-        <h3>Nitro</h3>
-        <p>Nitrous-infused, smoother texture. A talking point more than a volume driver.</p>
-        <span class="tag">Novelty</span>
-      </article>
-    </div>
-  </section>
-
-  <section id="ideas" class="wrap rv">
-    <div class="sec-head">
-      <h2>Three activations for this semester</h2>
-      <p>Each one is cheap to run, generates content, and gives the mentor a number to report upward.</p>
-    </div>
-    <div class="ideas">
-      <article class="idea">
-        <span class="idea-num">01</span>
+    <div class="steps">
+      <article class="step">
+        <span class="step-num">01</span>
         <div>
-          <h3>Fest Fuel Station</h3>
-          <p>A branded counter at the college cultural fest. Free chilled cans against a QR sign-up, claw decals on the barricades, and a photo wall that puts the logo in every uploaded picture. One volunteer counts cans, one collects sign-ups.</p>
-          <ul><li>Sampling</li><li>Lead capture</li><li>High footfall</li></ul>
+          <h3>Send the request</h3>
+          <p>Name, phone, venue address and your event date. Thirty seconds. Every submission lands with our team instantly, no inbox black hole.</p>
         </div>
       </article>
-      <article class="idea">
-        <span class="idea-num">02</span>
+      <article class="step">
+        <span class="step-num">02</span>
         <div>
-          <h3>Midnight Grind LAN</h3>
-          <p>An overnight campus gaming tournament co-hosted with the esports club. Monster on every desk, a claw-marked prize, and a clipped highlight reel posted the next morning while people are still talking about it.</p>
-          <ul><li>Esports</li><li>Content</li><li>Repeatable</li></ul>
+          <h3>We call you back</h3>
+          <p>Usually within two working days. We confirm the date, check the parking and power situation at your venue, and lock what the truck brings.</p>
         </div>
       </article>
-      <article class="idea">
-        <span class="idea-num">03</span>
+      <article class="step">
+        <span class="step-num">03</span>
         <div>
-          <h3>Campus Crew</h3>
-          <p>Ten students who each post one story a week in exchange for a monthly case. Cheap, always on, and it turns a one-day event into a semester of visibility. Track it with a single shared hashtag so reporting stays honest.</p>
-          <ul><li>Always-on</li><li>Low cost</li><li>Measurable</li></ul>
+          <h3>Truck shows up</h3>
+          <p>Crew arrives ahead of your start time, sets up, samples, and clears out clean. You get the photos and the footfall numbers afterwards.</p>
         </div>
       </article>
     </div>
   </section>
 
-  <section id="inquiry" class="inquiry rv">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Latest inquiry</h2>
-        <p>Details from the mentor conversation land here. Until then this block stays marked pending so nothing fake ships.</p>
+  <section id="included" class="wrap rv">
+    <div class="sec-head">
+      <h2>What actually rolls in</h2>
+      <p>Scale depends on your crowd size. Tell us the headcount in the form and we size it right.</p>
+    </div>
+    <div class="incl">
+      <article class="incl-row">
+        <span class="incl-no">01</span>
+        <h3>The truck</h3>
+        <p>Branded, chilled, and loud. Doubles as the backdrop everyone photographs.</p>
+      </article>
+      <article class="incl-row">
+        <span class="incl-no">02</span>
+        <h3>Free sampling</h3>
+        <p>Original Green, Ultra zero sugar and Juice flavours, poured cold and free to your attendees.</p>
+      </article>
+      <article class="incl-row">
+        <span class="incl-no">03</span>
+        <h3>Crew on ground</h3>
+        <p>Trained promoters running the counter so your volunteers stay on their own jobs.</p>
+      </article>
+      <article class="incl-row">
+        <span class="incl-no">04</span>
+        <h3>Branding kit</h3>
+        <p>Claw decals, barricade wraps, banners and a photo wall for the venue.</p>
+      </article>
+      <article class="incl-row">
+        <span class="incl-no">05</span>
+        <h3>Content capture</h3>
+        <p>Shots and clips from the activation, sent back to your committee for your own recap posts.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="book" class="booking rv">
+    <div class="wrap book-grid">
+
+      <div class="aside">
+        <p class="eyebrow">Request form</p>
+        <h2 style="margin-top:var(--s3)">Tell us where to park</h2>
+        <p>Fill this in and our team reaches out to confirm. Requests are reviewed in the order they arrive, so earlier dates get first pick on the calendar.</p>
+        <dl>
+          <div class="r"><dt>Notice needed</dt><dd>3 weeks minimum</dd></div>
+          <div class="r"><dt>Response time</dt><dd>Within 2 working days</dd></div>
+          <div class="r"><dt>Cost to you</dt><dd>Nothing for standard campus activations</dd></div>
+          <div class="r"><dt>What we need at the venue</dt><dd>Truck parking space and a clear entry path</dd></div>
+        </dl>
       </div>
-      <div class="inq-grid">
 
-        <div class="pending">
-          <span class="badge"><span class="dot"></span> Awaiting details</span>
-          <p>Kevin is sending the confirmed inquiry information. Replace the placeholder rows below with the real values before this page is shown to the mentor.</p>
-          <dl>
-            <div class="pr"><dt>Inquiry ref</dt><dd>to be supplied</dd></div>
-            <div class="pr"><dt>Raised by</dt><dd>to be supplied</dd></div>
-            <div class="pr"><dt>Campus</dt><dd>to be supplied</dd></div>
-            <div class="pr"><dt>Mentor</dt><dd>to be supplied</dd></div>
-            <div class="pr"><dt>Requested by</dt><dd>to be supplied</dd></div>
-            <div class="pr"><dt>Status</dt><dd>open</dd></div>
-          </dl>
-        </div>
+      <div>
+        <form id="bookForm" novalidate>
 
-        <div>
-          <form id="inqForm" novalidate>
-            <div class="two">
-              <div class="field" id="f-name">
-                <label for="name">Full name</label>
-                <input id="name" name="name" type="text" placeholder="Your name" required>
-                <span class="err-msg">Add your name.</span>
-              </div>
-              <div class="field" id="f-campus">
-                <label for="campus">Campus</label>
-                <input id="campus" name="campus" type="text" placeholder="College or university" required>
-                <span class="err-msg">Which campus?</span>
-              </div>
-            </div>
-            <div class="two">
-              <div class="field" id="f-email">
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" placeholder="you@college.edu" required>
-                <span class="err-msg">That email does not look right.</span>
-              </div>
-              <div class="field">
-                <label for="topic">Topic</label>
-                <select id="topic" name="topic">
-                  <option>Event sponsorship</option>
-                  <option>Product sampling</option>
-                  <option>Ambassador application</option>
-                  <option>Something else</option>
-                </select>
-              </div>
-            </div>
-            <div class="field" id="f-msg">
-              <label for="msg">What do you need</label>
-              <textarea id="msg" name="msg" placeholder="Dates, expected footfall, what you want from Monster." required></textarea>
-              <span class="err-msg">Give us a couple of lines.</span>
-            </div>
-            <button class="btn btn-solid" type="submit" id="submitBtn">Send inquiry</button>
-            <p class="form-note">Demo form. Nothing is transmitted until a backend or form service is wired up.</p>
-          </form>
+          <fieldset class="choice" style="border:0">
+            <legend style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Request type</legend>
+            <input type="radio" name="requestType" id="rt-truck" value="Truck at my event" checked>
+            <label for="rt-truck">
+              <strong>Truck at my event</strong>
+              <span>Sampling and setup at a fest, party or campus event</span>
+            </label>
+            <input type="radio" name="requestType" id="rt-collab" value="Collab or sponsorship">
+            <label for="rt-collab">
+              <strong>Collab or sponsorship</strong>
+              <span>Title sponsor, prize support or a longer partnership</span>
+            </label>
+          </fieldset>
 
-          <div class="sent" id="sent" role="status">
-            <h3>Inquiry logged</h3>
-            <p>Nothing left the browser, this is the confirmation state. Wire the form to a real endpoint before launch.</p>
+          <div class="two">
+            <div class="field" id="f-name">
+              <label for="name">Full name</label>
+              <input id="name" name="name" type="text" autocomplete="name" placeholder="Who we should ask for" required>
+              <span class="err-msg">Add your name.</span>
+            </div>
+            <div class="field" id="f-phone">
+              <label for="phone">Phone number</label>
+              <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile" required>
+              <span class="err-msg">Enter a valid phone number.</span>
+            </div>
           </div>
-        </div>
 
+          <div class="field" id="f-venue">
+            <label for="venue">Venue</label>
+            <input id="venue" name="venue" type="text" placeholder="College ground, auditorium, club name" required>
+            <span class="err-msg">Where is it happening?</span>
+          </div>
+
+          <div class="field" id="f-address">
+            <label for="address">Full address</label>
+            <textarea id="address" name="address" autocomplete="street-address" placeholder="Street, area, city, pin code. The more exact, the better we plan the drive-in." required></textarea>
+            <span class="err-msg">We need the full address to route the truck.</span>
+          </div>
+
+          <div class="two">
+            <div class="field" id="f-date">
+              <label for="eventDate">Event date</label>
+              <input id="eventDate" name="eventDate" type="date" required>
+              <span class="err-msg">Pick a date at least 3 weeks out.</span>
+            </div>
+            <div class="field">
+              <label for="crowd">Expected crowd <span class="opt">(optional)</span></label>
+              <input id="crowd" name="crowd" type="number" min="0" step="50" inputmode="numeric" placeholder="e.g. 800">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email">Email <span class="opt">(optional)</span></label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@college.edu">
+          </div>
+
+          <div class="field">
+            <label for="notes">Anything else <span class="opt">(optional)</span></label>
+            <textarea id="notes" name="notes" placeholder="Event name, timings, what you need from us."></textarea>
+          </div>
+
+          <div class="formfail" id="formfail" role="alert">Could not send that. Check your connection and hit submit again.</div>
+
+          <button class="btn btn-solid" type="submit" id="submitBtn">Submit request</button>
+          <p class="form-note">We only use these details to contact you about this event.</p>
+        </form>
+
+        <div class="done" id="done" role="status" aria-live="polite">
+          <div class="tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></svg></div>
+          <h3>Form filled</h3>
+          <p>Our team will contact you shortly to confirm the date and sort out the venue details. Keep your phone reachable.</p>
+          <p class="ref">Reference <b id="refCode">—</b></p>
+          <button class="btn btn-ghost" type="button" id="againBtn">Submit another request</button>
+        </div>
       </div>
+
     </div>
   </section>
 
@@ -511,35 +406,58 @@ footer{padding-block:var(--s7) var(--s6);border-top:1px solid var(--line-soft)}
 
 <footer>
   <div class="wrap foot">
-    <p>Unofficial student ambassador brief. Monster Energy, the claw mark and all product names are trademarks of Monster Beverage Corporation. Not affiliated with or endorsed by Monster Energy.</p>
+    <p>Student ambassador request page. Monster Energy, the claw mark and all product names are trademarks of Monster Beverage Corporation. Not an official Monster Energy website.</p>
     <nav>
-      <a href="#brand">Brand</a>
-      <a href="#lineup">Lineup</a>
-      <a href="#ideas">Plan</a>
-      <a href="#inquiry">Inquiry</a>
+      <a href="#how">How</a>
+      <a href="#included">What arrives</a>
+      <a href="#book">Book</a>
     </nav>
   </div>
 </footer>
 
 <script>
+/* ------------------------------------------------------------------
+   GOOGLE SHEETS ENDPOINT
+   Paste the Apps Script Web App URL below (see apps-script.gs + SETUP.md).
+   Looks like: https://script.google.com/macros/s/AKfy..../exec
+------------------------------------------------------------------- */
+const SHEET_ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+
 const io = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
 }, { threshold: 0.12 });
 document.querySelectorAll('.rv').forEach(el => io.observe(el));
 
-const form = document.getElementById('inqForm');
-const sent = document.getElementById('sent');
+const form = document.getElementById('bookForm');
+const done = document.getElementById('done');
 const btn = document.getElementById('submitBtn');
+const fail = document.getElementById('formfail');
+const refCode = document.getElementById('refCode');
+
+// minimum date = 3 weeks from today
+const minDate = new Date(Date.now() + 21 * 864e5).toISOString().slice(0, 10);
+document.getElementById('eventDate').min = minDate;
+
+const val = id => document.getElementById(id).value.trim();
 
 const checks = [
-  ['f-name',  () => document.getElementById('name').value.trim().length > 1],
-  ['f-campus',() => document.getElementById('campus').value.trim().length > 1],
-  ['f-email', () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('email').value.trim())],
-  ['f-msg',   () => document.getElementById('msg').value.trim().length > 9],
+  ['f-name',    () => val('name').length > 1],
+  ['f-phone',   () => val('phone').replace(/\D/g, '').length >= 10],
+  ['f-venue',   () => val('venue').length > 2],
+  ['f-address', () => val('address').length > 9],
+  ['f-date',    () => !!val('eventDate') && val('eventDate') >= minDate],
 ];
 
-form.addEventListener('submit', (ev) => {
+function makeRef() {
+  const d = new Date();
+  const stamp = String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+  return 'MTR-' + stamp + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+}
+
+form.addEventListener('submit', async (ev) => {
   ev.preventDefault();
+  fail.classList.remove('on');
+
   let ok = true;
   checks.forEach(([id, test]) => {
     const el = document.getElementById(id);
@@ -549,16 +467,59 @@ form.addEventListener('submit', (ev) => {
   });
   if (!ok) return;
 
+  const ref = makeRef();
+  const payload = {
+    ref,
+    requestType: form.querySelector('input[name="requestType"]:checked').value,
+    name: val('name'),
+    phone: val('phone'),
+    email: val('email'),
+    venue: val('venue'),
+    address: val('address'),
+    eventDate: val('eventDate'),
+    crowd: val('crowd'),
+    notes: val('notes'),
+    submittedAt: new Date().toISOString(),
+    page: location.href
+  };
+
   btn.disabled = true;
   btn.textContent = 'Sending';
-  setTimeout(() => {
+
+  try {
+    if (SHEET_ENDPOINT.startsWith('http')) {
+      await fetch(SHEET_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      console.warn('Sheets endpoint not configured. Payload:', payload);
+      await new Promise(r => setTimeout(r, 500));
+    }
+    refCode.textContent = ref;
     form.style.display = 'none';
-    sent.classList.add('on');
-  }, 700);
+    done.classList.add('on');
+    done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    fail.classList.add('on');
+    btn.disabled = false;
+    btn.textContent = 'Submit request';
+  }
 });
 
 form.querySelectorAll('input, textarea').forEach(el => {
-  el.addEventListener('input', () => el.closest('.field').classList.remove('err'));
+  el.addEventListener('input', () => el.closest('.field') && el.closest('.field').classList.remove('err'));
+});
+
+document.getElementById('againBtn').addEventListener('click', () => {
+  form.reset();
+  form.style.display = 'grid';
+  done.classList.remove('on');
+  btn.disabled = false;
+  btn.textContent = 'Submit request';
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 </script>
 </body>
