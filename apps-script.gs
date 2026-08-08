@@ -15,7 +15,7 @@ var RAID_HEADERS = [
   "Submitted at", "Reference", "Event date", "Raid end", "18h deadline", "Timeline",
   "Event", "University / College", "Venue", "Activation type", "Brand",
   "Cans out", "Cans in", "Cans sampled", "Cans to organisers", "Stock difference",
-  "MATs on raid", "Submitted by", "What worked", "What did not work",
+  "MATs on raid", "Total MAT hours", "Submitted by", "What worked", "What did not work",
   "Photo folder", "Photo links"
 ];
 
@@ -58,9 +58,7 @@ function saveRequest_(data) {
 }
 
 function saveRaidReport_(data) {
-  if (!data.images || data.images.length !== 10) {
-    throw new Error("Exactly 10 pictures are required.");
-  }
+  if (!data.images || data.images.length !== 10) throw new Error("Exactly 10 pictures are required.");
 
   var reportFolder = createReportFolder_(data);
   var links = [];
@@ -75,16 +73,15 @@ function saveRaidReport_(data) {
   var ended = new Date(data.reportDate + "T" + data.raidEnd + ":00");
   var deadline = new Date(ended.getTime() + 18 * 60 * 60 * 1000);
   var timeline = submitted <= deadline ? "On time" : "Late";
-  var stockDifference = Number(data.cansOut || 0) - Number(data.cansIn || 0) -
-    Number(data.cansSampled || 0) - Number(data.cansOrganisers || 0);
+  var stockDifference = Number(data.cansOut || 0) - Number(data.cansIn || 0) - Number(data.cansSampled || 0) - Number(data.cansOrganisers || 0);
 
   var sheet = ensureSheet_(RAID_SHEET, RAID_HEADERS);
   sheet.appendRow([
     submitted, data.ref || "", data.reportDate || "", data.raidEnd || "", deadline, timeline,
     data.eventName || "", data.college || "", data.venue || "", data.activation || "", data.brand || "",
     Number(data.cansOut || 0), Number(data.cansIn || 0), Number(data.cansSampled || 0),
-    Number(data.cansOrganisers || 0), stockDifference, data.mats || "", data.submittedBy || "",
-    data.worked || "", data.didnt || "", reportFolder.getUrl(), links.join("\n")
+    Number(data.cansOrganisers || 0), stockDifference, data.mats || "", Number(data.totalHours || 0),
+    data.submittedBy || "", data.worked || "", data.didnt || "", reportFolder.getUrl(), links.join("\n")
   ]);
 
   var row = sheet.getLastRow();
@@ -103,16 +100,14 @@ function getSpreadsheet_() {
 function ensureSheet_(name, headers) {
   var ss = getSpreadsheet_();
   var sheet = ss.getSheetByName(name) || ss.insertSheet(name);
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(headers);
-    sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold").setBackground("#111111").setFontColor("#8CFF33");
-    sheet.setFrozenRows(1);
-    sheet.getRange(1, 1, 1, headers.length).createFilter();
-  }
+  if (sheet.getMaxColumns() < headers.length) sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight("bold").setBackground("#111111").setFontColor("#8CFF33");
+  sheet.setFrozenRows(1);
+  if (!sheet.getFilter() && sheet.getLastRow() > 0) sheet.getRange(1, 1, Math.max(1, sheet.getLastRow()), headers.length).createFilter();
   sheet.setColumnWidth(17, 240);
-  sheet.setColumnWidth(19, 280);
   sheet.setColumnWidth(20, 280);
-  sheet.setColumnWidth(22, 320);
+  sheet.setColumnWidth(21, 280);
+  sheet.setColumnWidth(23, 320);
   return sheet;
 }
 
@@ -141,7 +136,8 @@ function sendRequestEmail_(data) {
 function sendRaidEmail_(data, folder, timeline, difference) {
   MailApp.sendEmail(NOTIFY_EMAIL, "Raid report: " + (data.eventName || "Unknown event"),
     "Reference: " + (data.ref || "") + "\nSubmitted by: " + (data.submittedBy || "") +
-    "\nTimeline: " + timeline + "\nStock difference: " + difference + "\nPhotos: " + folder);
+    "\nMAT hours: " + (data.totalHours || "") + "\nTimeline: " + timeline +
+    "\nStock difference: " + difference + "\nPhotos: " + folder);
 }
 
 function json_(obj) {
